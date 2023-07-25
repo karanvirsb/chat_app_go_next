@@ -7,17 +7,31 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+var allowedOrigins []string = []string{"http://localhost:3000"}
+
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		found := false
+		origin := r.Header.Get("Origin")
+
+		for _, o := range allowedOrigins {
+			if o == origin {
+				found = true
+				break
+			}
+		}
+
+		return found
+	},
 }
 
 func main() {
 	http.HandleFunc("/socket", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			return
+			fmt.Printf("Error web socket: %v", err)
 		}
+		fmt.Printf("socket connected: %v", conn.RemoteAddr())
 
 		for {
 			msgType, msg, err := conn.ReadMessage()
