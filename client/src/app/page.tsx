@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 
 export default function Home() {
@@ -8,18 +8,24 @@ export default function Home() {
 }
 
 function Chat() {
-  const [message, setMessage] = useState<string[]>([]);
+  const [messageHistory, setMessageHistory] = useState<string[]>([]);
   const { lastMessage, sendMessage, readyState } = useWebSocket(
-    "wss://localhost:8000/socket"
+    "ws://localhost:8000/socket"
   );
+  useEffect(() => {
+    if (readyState !== 1) return;
+    if (lastMessage === null) return;
 
+    if (typeof lastMessage !== "string") return;
+    setMessageHistory((prev) => prev.concat(lastMessage));
+  }, [lastMessage, readyState]);
   return (
     <div>
       <div>
         <h1>Messages</h1>
         <Button>Click me to send hello</Button>
       </div>
-      {message}
+      {messageHistory}
     </div>
   );
 }
