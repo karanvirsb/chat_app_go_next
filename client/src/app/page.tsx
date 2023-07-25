@@ -10,7 +10,7 @@ export default function Home() {
 
 function Chat() {
   const [messageHistory, setMessageHistory] = useState<string[]>([]);
-  const message = useRef<string>("");
+  const message = useRef<HTMLTextAreaElement | null>(null);
   const { lastMessage, sendMessage, readyState } = useWebSocket(
     "ws://localhost:8000/socket"
   );
@@ -23,13 +23,25 @@ function Chat() {
   return (
     <div>
       <div>
-        <h1>Messages</h1>
-        <Textarea
-          onChange={(e) => (message.current = e.target.value)}
-        ></Textarea>
-        <Button>Send Message</Button>
+        <h1>Send Messages</h1>
+        <Textarea ref={message}></Textarea>
+        <Button
+          onClick={() => {
+            if (!message.current) return;
+            sendMessage(message?.current?.value);
+            message.current.value = "";
+          }}
+        >
+          Send Message
+        </Button>
       </div>
-      {messageHistory}
+      <section>
+        <h1>All Messages</h1>
+
+        {messageHistory.map((msg, index) => {
+          return <div key={index}>{msg}</div>;
+        })}
+      </section>
     </div>
   );
 }
