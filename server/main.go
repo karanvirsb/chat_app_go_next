@@ -26,6 +26,12 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+type Socket struct {
+	id    string
+	rooms []string
+	conn  *websocket.Conn
+}
+
 type Connections struct {
 	mu    sync.Mutex
 	conns []*websocket.Conn
