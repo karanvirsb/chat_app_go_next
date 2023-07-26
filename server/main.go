@@ -80,7 +80,7 @@ func main() {
 
 			fmt.Printf("%v -- sent message: %v\n", conn.RemoteAddr(), string(msg))
 			for _, con := range connections.conns {
-				err = con.WriteMessage(msgType, msg)
+				err = con.conn.WriteMessage(msgType, msg)
 				if err != nil {
 					fmt.Printf("Error while sending message: %v", err)
 				}
