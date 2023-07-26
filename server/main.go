@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -41,6 +42,14 @@ func (c *Connections) addConnection(conn *websocket.Conn) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.conns = append(c.conns, conn)
+}
+
+func (socket *Socket) addRooms(rooms []string) {
+	socket.rooms = append(socket.rooms, rooms...)
+}
+
+func (socket *Socket) generateId() {
+	socket.id = uuid.NewString()
 }
 
 func main() {
