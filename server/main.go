@@ -35,10 +35,10 @@ type Socket struct {
 
 type Connections struct {
 	mu    sync.Mutex
-	conns []*websocket.Conn
+	conns []Socket
 }
 
-func (c *Connections) addConnection(conn *websocket.Conn) {
+func (c *Connections) addConnection(conn Socket) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.conns = append(c.conns, conn)
