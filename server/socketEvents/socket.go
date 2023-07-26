@@ -75,10 +75,10 @@ func CaptureSocketEvents(w http.ResponseWriter, r *http.Request) {
 		msgType, msg, err := conn.ReadMessage()
 
 		if err != nil {
-			return
+			fmt.Printf("Read Message Error: %v\n", err)
 		}
-
-		fmt.Printf("%v -- sent message: %v\n", conn.RemoteAddr(), string(msg))
+		fmt.Printf("\nmsgType: %v\nmsg: %v\n\n", msgType, string(msg))
+		// fmt.Printf("%v -- sent message: %v\n", conn.RemoteAddr(), string(msg))
 		for _, con := range connections.conns {
 			err = con.conn.WriteMessage(msgType, msg)
 			if err != nil {
