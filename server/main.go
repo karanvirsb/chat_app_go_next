@@ -48,20 +48,27 @@ func (socket *Socket) addRooms(rooms []string) {
 	socket.rooms = append(socket.rooms, rooms...)
 }
 
-func (socket *Socket) generateId() {
-	socket.id = uuid.NewString()
+func generateId() string {
+	return uuid.NewString()
 }
 
 func main() {
 	connections := Connections{
-		conns: []*websocket.Conn{},
+		conns: []Socket{},
 	}
 	http.HandleFunc("/socket", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			fmt.Printf("Error web socket: %v", err)
 		}
-		go connections.addConnection(conn)
+		// creating socket
+		socket := Socket{
+			id:    generateId(),
+			rooms: []string{"1"},
+			conn:  conn,
+		}
+
+		go connections.addConnection(socket)
 		fmt.Printf("socket connected: %v", conn.RemoteAddr())
 
 		for {
