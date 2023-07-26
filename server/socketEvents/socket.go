@@ -8,6 +8,22 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
+type Message[T] struct {
+	Data T `json:"data,omitempty"`
+  EventName string `json:"eventName,omitempty"`
+	Room []string `json:"room,omitempty"`	
+} 
+
+type Socket struct {
+	id    string
+	rooms []string
+	conn  *websocket.Conn
+}
+
+type Connections struct {
+	mu    sync.Mutex
+	conns []Socket
+}
 
 var allowedOrigins []string = []string{"http://localhost:3000"}
 
@@ -27,16 +43,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-type Socket struct {
-	id    string
-	rooms []string
-	conn  *websocket.Conn
-}
 
-type Connections struct {
-	mu    sync.Mutex
-	conns []Socket
-}
 
 func (c *Connections) addConnection(conn Socket) {
 	c.mu.Lock()
@@ -73,6 +80,7 @@ func CaptureSocketEvents(w http.ResponseWriter, r *http.Request) {
 
 	for {
 		msgType, msg, err := conn.ReadMessage()
+		msg,err := conn.ReadJSON({})
 
 		if err != nil {
 			fmt.Printf("Read Message Error: %v\n", err)
