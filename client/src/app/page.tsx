@@ -11,7 +11,7 @@ export default function Home() {
 function Chat() {
   const [messageHistory, setMessageHistory] = useState<string[]>([]);
   const message = useRef<HTMLTextAreaElement | null>(null);
-  const { lastMessage, sendMessage, readyState } = useWebSocket(
+  const { lastMessage, sendMessage, readyState, getWebSocket } = useWebSocket(
     "ws://localhost:8000/socket"
   );
   useEffect(() => {
