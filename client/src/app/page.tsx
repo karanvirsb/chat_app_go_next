@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { time, timeLog } from "console";
 import { useEffect, useReducer, useRef, useState } from "react";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 
@@ -15,17 +16,18 @@ interface Message<T> {
 }
 
 function Chat() {
-  const [messageHistory, setMessageHistory] = useState<string[]>([]);
+  const [messageHistory, setMessageHistory] = useState<Message<unknown>[]>([]);
   const message = useRef<HTMLTextAreaElement | null>(null);
-  const { lastMessage, sendMessage, readyState, getWebSocket } = useWebSocket(
-    "ws://localhost:8000/socket"
-  );
+  const { lastJsonMessage, sendMessage, readyState, getWebSocket } =
+    useWebSocket("ws://localhost:8000/socket");
   useEffect(() => {
     if (readyState !== 1) return;
-    if (lastMessage === null) return;
-
-    setMessageHistory((prev) => prev.concat(lastMessage.data));
-  }, [lastMessage, readyState]);
+    if (lastJsonMessage === null) return;
+    timeLog("Last Json Message", lastJsonMessage);
+    setMessageHistory((prev) =>
+      prev.concat(lastJsonMessage as Message<unknown>)
+    );
+  }, [lastJsonMessage, readyState]);
   return (
     <div>
       <div>
@@ -45,7 +47,7 @@ function Chat() {
         <h1>All Messages</h1>
 
         {messageHistory.map((msg, index) => {
-          return <div key={index}>{msg}</div>;
+          return <div key={index}>{JSON.stringify(msg)}</div>;
         })}
       </section>
     </div>
