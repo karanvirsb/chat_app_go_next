@@ -40,15 +40,17 @@ func main() {
 
 	router := mux.NewRouter()
 
-	router.HandleFunc("/socket", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/socket/{room}", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			fmt.Printf("Error web socket: %v", err)
 		}
+		var vars = mux.Vars(r)
+
 		// creating socket
 		socket := socketEvents.Socket{
 			Id:    generateId(),
-			Rooms: []string{"1"},
+			Rooms: []string{vars["room"]},
 			Conn:  conn,
 		}
 
