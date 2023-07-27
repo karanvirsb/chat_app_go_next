@@ -18,7 +18,7 @@ function Chat() {
   const [messageHistory, setMessageHistory] = useState<Message<unknown>[]>([]);
   const message = useRef<HTMLTextAreaElement | null>(null);
   const { lastJsonMessage, sendJsonMessage, readyState, getWebSocket } =
-    useWebSocket("ws://localhost:8000/socket");
+    useWebSocket("ws://localhost:8000/socket/1");
   useEffect(() => {
     if (readyState !== 1) return;
     if (lastJsonMessage === null) return;
