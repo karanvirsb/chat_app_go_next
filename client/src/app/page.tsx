@@ -39,9 +39,11 @@ function Chat() {
       lastJsonMessage
     );
     setMessageHistory((prev) => {
+      let prevRoom = prev[room] ?? [];
+      prevRoom.push(lastJsonMessage as Message<any>);
       return {
         ...prev,
-        [room]: [...prev[room], lastJsonMessage],
+        [room]: prevRoom,
       };
     });
   }, [lastJsonMessage, readyState, room]);
@@ -79,7 +81,7 @@ function Chat() {
       <section>
         <h1>All Messages</h1>
 
-        {messageHistory.map((msg, index) => {
+        {messageHistory[room]?.map((msg, index) => {
           return <div key={index}>{JSON.stringify(msg)}</div>;
         })}
       </section>
