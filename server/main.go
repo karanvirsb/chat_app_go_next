@@ -10,21 +10,9 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type Message[T any] struct {
-	Data      T        `json:"data,omitempty"`
-	EventName string   `json:"eventName,omitempty"`
-	Room      []string `json:"room,omitempty"`
-}
-
-type Socket struct {
-	id    string
-	rooms []string
-	conn  *websocket.Conn
-}
-
 type Connections struct {
 	mu    sync.Mutex
-	conns []Socket
+	conns []socketEvents.Socket
 }
 
 var allowedOrigins []string = []string{"http://localhost:3000"}
@@ -45,14 +33,10 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func (c *Connections) addConnection(conn Socket) {
+func (c *Connections) addConnection(conn socketEvents.Socket) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.conns = append(c.conns, conn)
-}
-
-func (socket *Socket) addRooms(rooms []string) {
-	socket.rooms = append(socket.rooms, rooms...)
 }
 
 func generateId() string {
@@ -60,7 +44,7 @@ func generateId() string {
 }
 
 var connections = Connections{
-	conns: []Socket{},
+	conns: []socketEvents.Socket{},
 }
 
 func main() {
@@ -71,15 +55,15 @@ func main() {
 			fmt.Printf("Error web socket: %v", err)
 		}
 		// creating socket
-		socket := Socket{
-			id:    generateId(),
-			rooms: []string{"1"},
-			conn:  conn,
+		socket := socketEvents.Socket{
+			Id:    generateId(),
+			Rooms: []string{"1"},
+			Conn:  conn,
 		}
 
 		connections.addConnection(socket)
-		fmt.Printf("socket connected: %v", socket.conn.RemoteAddr())
-		socketEvents.CaptureSocketEvents(socket)
+		fmt.Printf("socket connected: %v", socket.Conn.RemoteAddr())
+		socketEvents.CaptureSocketEvents(socket, connections)
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Server request")
