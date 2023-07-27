@@ -1,7 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { time, timeLog } from "console";
 import { useEffect, useReducer, useRef, useState } from "react";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 
@@ -18,12 +17,15 @@ interface Message<T> {
 function Chat() {
   const [messageHistory, setMessageHistory] = useState<Message<unknown>[]>([]);
   const message = useRef<HTMLTextAreaElement | null>(null);
-  const { lastJsonMessage, sendMessage, readyState, getWebSocket } =
+  const { lastJsonMessage, sendJsonMessage, readyState, getWebSocket } =
     useWebSocket("ws://localhost:8000/socket");
   useEffect(() => {
     if (readyState !== 1) return;
     if (lastJsonMessage === null) return;
-    timeLog("Last Json Message", lastJsonMessage);
+    console.log(
+      `Last Json Message ${new Date().toLocaleDateString()}`,
+      lastJsonMessage
+    );
     setMessageHistory((prev) =>
       prev.concat(lastJsonMessage as Message<unknown>)
     );
@@ -36,7 +38,11 @@ function Chat() {
         <Button
           onClick={() => {
             if (!message.current) return;
-            sendMessage(message?.current?.value);
+            sendJsonMessage({
+              data: message.current.value,
+              eventName: "globalMessage",
+              room: ["1"],
+            } satisfies Message<string>);
             message.current.value = "";
           }}
         >
