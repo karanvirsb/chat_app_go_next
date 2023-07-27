@@ -1,6 +1,7 @@
 package socketEvents
 
 import (
+	"encoding/json"
 	"fmt"
 	"sync"
 
@@ -35,27 +36,30 @@ func (c *Connections) AddConnection(conn Socket) {
 func CaptureSocketEvents(socket *Socket, Connections *Connections) {
 
 	for {
-		msgType, msg, err := socket.Conn.ReadMessage()
+		// msgType, msg, err := socket.Conn.ReadMessage()
+		// if err != nil {
+		// 	fmt.Printf("Read Message Error: %v\n", err)
+		// }
+		// fmt.Printf("\nmsgType: %v\nmsg: %v\n\n", msgType, string(msg))
+
 		jsonMessage := Message[any]{}
 		errr := socket.Conn.ReadJSON(&jsonMessage)
 
-		if err != nil {
-			fmt.Printf("Read Message Error: %v\n", err)
-		}
-		fmt.Printf("\nmsgType: %v\nmsg: %v\n\n", msgType, string(msg))
 		if errr != nil {
 			fmt.Printf("\nJson Message Error: %v\n", errr)
 		}
-		//fmt.Printf("\nJSON message: %v\n", json.NewDecoder(r.Body).Decode(jsonMessage))
+		msg, _ := json.Marshal(jsonMessage)
+		fmt.Printf("\nJSON message: %v\n", string(msg))
 		// fmt.Printf("%v -- sent message: %v\n",.Conn.RemoteAddr(), string(msg))
-		for _, con := range Connections.Conns {
-			err = con.Conn.WriteMessage(msgType, msg)
+		for _, socket := range Connections.Conns {
+			// err = socket.Conn.WriteMessage(msgType, msg)
+			err := socket.Conn.WriteJSON(string(msg))
 			if err != nil {
 				fmt.Printf("Error while sending message: %v", err)
 			}
 		}
 		// Write message back to browser
-		// if err =.Conn.WriteMessage(msgType, msg); err != nil {
+		// if err = socket.Conn.WriteMessage(msgType, msg); err != nil {
 		// 	return
 		// }
 	}
