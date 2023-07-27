@@ -47,6 +47,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections) {
 
 		if errr != nil {
 			fmt.Printf("\nJson Message Error: %v\n", errr)
+			continue
 		}
 		msg, _ := json.Marshal(jsonMessage)
 		fmt.Printf("\nJSON message: %v\n", string(msg))
@@ -55,7 +56,8 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections) {
 			// err = socket.Conn.WriteMessage(msgType, msg)
 			err := socket.Conn.WriteJSON(string(msg))
 			if err != nil {
-				fmt.Printf("Error while sending message: %v", err)
+				fmt.Printf("\nError while sending message: %v\n", err)
+				continue
 			}
 		}
 		// Write message back to browser
