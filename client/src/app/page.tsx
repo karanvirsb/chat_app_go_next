@@ -8,6 +8,12 @@ export default function Home() {
   return <Chat></Chat>;
 }
 
+interface Message<T> {
+  data?: T;
+  room?: string[];
+  eventName?: string;
+}
+
 function Chat() {
   const [messageHistory, setMessageHistory] = useState<string[]>([]);
   const message = useRef<HTMLTextAreaElement | null>(null);
