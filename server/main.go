@@ -4,16 +4,10 @@ import (
 	"chat_app_server/socketEvents"
 	"fmt"
 	"net/http"
-	"sync"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
-
-type Connections struct {
-	mu    sync.Mutex
-	conns []socketEvents.Socket
-}
 
 var allowedOrigins []string = []string{"http://localhost:3000"}
 
@@ -33,18 +27,12 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func (c *Connections) addConnection(conn socketEvents.Socket) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.conns = append(c.conns, conn)
-}
-
 func generateId() string {
 	return uuid.NewString()
 }
 
-var connections = Connections{
-	conns: []socketEvents.Socket{},
+var connections = socketEvents.Connections{
+	Conns: []socketEvents.Socket{},
 }
 
 func main() {
@@ -61,9 +49,9 @@ func main() {
 			Conn:  conn,
 		}
 
-		connections.addConnection(socket)
+		connections.AddConnection(socket)
 		fmt.Printf("socket connected: %v", socket.Conn.RemoteAddr())
-		socketEvents.CaptureSocketEvents(socket, connections)
+		socketEvents.CaptureSocketEvents(&socket, &connections)
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Server request")
