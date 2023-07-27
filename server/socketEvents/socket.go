@@ -27,6 +27,11 @@ type Connections struct {
 func (socket *Socket) AddRooms(rooms []string) {
 	socket.Rooms = append(socket.Rooms, rooms...)
 }
+func (c *Connections) AddConnection(conn Socket) {
+	c.Mu.Lock()
+	defer c.Mu.Unlock()
+	c.Conns = append(c.Conns, conn)
+}
 func CaptureSocketEvents(socket *Socket, Connections *Connections) {
 
 	for {
@@ -43,7 +48,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections) {
 		}
 		//fmt.Printf("\nJSON message: %v\n", json.NewDecoder(r.Body).Decode(jsonMessage))
 		// fmt.Printf("%v -- sent message: %v\n",.Conn.RemoteAddr(), string(msg))
-		for _, con := range Connections.conns {
+		for _, con := range Connections.Conns {
 			err = con.Conn.WriteMessage(msgType, msg)
 			if err != nil {
 				fmt.Printf("Error while sending message: %v", err)
