@@ -66,7 +66,20 @@ var connections = Connections{
 func main() {
 
 	http.HandleFunc("/socket", func(w http.ResponseWriter, r *http.Request) {
-		socketEvents.CaptureSocketEvents(w, r)
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			fmt.Printf("Error web socket: %v", err)
+		}
+		// creating socket
+		socket := Socket{
+			id:    generateId(),
+			rooms: []string{"1"},
+			conn:  conn,
+		}
+
+		connections.addConnection(socket)
+		fmt.Printf("socket connected: %v", socket.conn.RemoteAddr())
+		socketEvents.CaptureSocketEvents(socket)
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Server request")
