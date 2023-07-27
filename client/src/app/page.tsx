@@ -44,7 +44,7 @@ function Chat() {
         [room]: [...prev[room], lastJsonMessage],
       };
     });
-  }, [lastJsonMessage, readyState]);
+  }, [lastJsonMessage, readyState, room]);
   return (
     <div>
       <div>
