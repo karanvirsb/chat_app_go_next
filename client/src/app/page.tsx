@@ -27,13 +27,14 @@ interface MessageHistory {
 
 function Chat() {
   const [messageHistory, setMessageHistory] = useState<MessageHistory>({});
-  const [room, setRoom] = useState(1);
+  const [room, setRoom] = useState("1");
   const message = useRef<HTMLTextAreaElement | null>(null);
   const { lastJsonMessage, sendJsonMessage, readyState, getWebSocket } =
     useWebSocket(`ws://localhost:8000/socket/${room}`);
   useEffect(() => {
     if (readyState !== 1) return;
-    if (lastJsonMessage === null) return;
+    if (lastJsonMessage === null || JSON.parse(lastJsonMessage + "") === null)
+      return;
     console.log(
       `Last Json Message ${new Date().toLocaleDateString()}`,
       lastJsonMessage
@@ -52,7 +53,7 @@ function Chat() {
       <div>
         <div className="flex">
           <h1>Send Messages</h1>
-          <Select>
+          <Select onValueChange={(val) => setRoom(val)}>
             <SelectTrigger>
               <SelectValue placeholder="Rooms"></SelectValue>
             </SelectTrigger>
@@ -65,12 +66,14 @@ function Chat() {
         </div>
         <Textarea ref={message}></Textarea>
         <Button
+          type="button"
           onClick={() => {
             if (!message.current) return;
+            if (message.current.value.length < 3) return;
             sendJsonMessage({
               data: message.current.value,
               eventName: "globalMessage",
-              room: ["1"],
+              room: [room],
             } satisfies Message<string>);
             message.current.value = "";
           }}
