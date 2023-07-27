@@ -2,90 +2,23 @@ package socketEvents
 
 import (
 	"fmt"
-	"net/http"
-	"sync"
-
-	"github.com/google/uuid"
-	"github.com/gorilla/websocket"
 )
-type Message[T] struct {
-	Data T `json:"data,omitempty"`
-  EventName string `json:"eventName,omitempty"`
-	Room []string `json:"room,omitempty"`	
-} 
 
-type Socket struct {
-	id    string
-	rooms []string
-	conn  *websocket.Conn
-}
-
-type Connections struct {
-	mu    sync.Mutex
-	conns []Socket
-}
-
-var allowedOrigins []string = []string{"http://localhost:3000"}
-
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		found := false
-		origin := r.Header.Get("Origin")
-
-		for _, o := range allowedOrigins {
-			if o == origin {
-				found = true
-				break
-			}
-		}
-
-		return found
-	},
-}
-
-
-
-func (c *Connections) addConnection(conn Socket) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.conns = append(c.conns, conn)
-}
-
-func (socket *Socket) addRooms(rooms []string) {
-	socket.rooms = append(socket.rooms, rooms...)
-}
-
-func generateId() string {
-	return uuid.NewString()
-}
-
-var connections = Connections{
-	conns: []Socket{},
-}
-
-func CaptureSocketEvents(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Printf("Error web socket: %v", err)
-	}
-	// creating socket
-	socket := Socket{
-		id:    generateId(),
-		rooms: []string{"1"},
-		conn:  conn,
-	}
-
-	go connections.addConnection(socket)
-	fmt.Printf("socket connected: %v", conn.RemoteAddr())
+func CaptureSocketEvents(socket Socket) {
 
 	for {
-		msgType, msg, err := conn.ReadMessage()
-		msg,err := conn.ReadJSON({})
+		msgType, msg, err := socket.conn.ReadMessage()
+		jsonMessage := Message[any]{}
+		errr := socket.conn.ReadJSON(&jsonMessage)
 
 		if err != nil {
 			fmt.Printf("Read Message Error: %v\n", err)
 		}
 		fmt.Printf("\nmsgType: %v\nmsg: %v\n\n", msgType, string(msg))
+		if errr != nil {
+			fmt.Printf("\nJson Message Error: %v\n", errr)
+		}
+		//fmt.Printf("\nJSON message: %v\n", json.NewDecoder(r.Body).Decode(jsonMessage))
 		// fmt.Printf("%v -- sent message: %v\n", conn.RemoteAddr(), string(msg))
 		for _, con := range connections.conns {
 			err = con.conn.WriteMessage(msgType, msg)
