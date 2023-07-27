@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
@@ -37,7 +38,9 @@ var connections = socketEvents.Connections{
 
 func main() {
 
-	http.HandleFunc("/socket", func(w http.ResponseWriter, r *http.Request) {
+	router := mux.NewRouter()
+
+	router.HandleFunc("/socket", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			fmt.Printf("Error web socket: %v", err)
@@ -53,8 +56,8 @@ func main() {
 		fmt.Printf("socket connected: %v", socket.Conn.RemoteAddr())
 		socketEvents.CaptureSocketEvents(&socket, &connections)
 	})
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Server request")
 	})
-	http.ListenAndServe(":8000", nil)
+	http.ListenAndServe(":8000", router)
 }
