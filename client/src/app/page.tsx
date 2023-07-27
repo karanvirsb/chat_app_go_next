@@ -33,12 +33,14 @@ function Chat() {
     useWebSocket(`ws://localhost:8000/socket/${room}`);
   useEffect(() => {
     if (readyState !== 1) return;
-    if (lastJsonMessage === null || JSON.parse(lastJsonMessage + "") === null)
-      return;
+    if (lastJsonMessage === null) return;
+
+    const jsonMessage = JSON.parse(lastJsonMessage + "\n") as Message<any>;
     console.log(
       `Last Json Message ${new Date().toLocaleDateString()}`,
-      lastJsonMessage
+      jsonMessage
     );
+    if (!jsonMessage?.room?.includes(room)) return;
     setMessageHistory((prev) => {
       let prevRoom = prev[room] ?? [];
       prevRoom.push(lastJsonMessage as Message<any>);
