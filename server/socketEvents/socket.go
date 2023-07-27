@@ -1,8 +1,8 @@
 package socketEvents
 
 import (
-	"chat_app_server/main"
 	"fmt"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -19,10 +19,15 @@ type Socket struct {
 	Conn  *websocket.Conn
 }
 
+type Connections struct {
+	Mu    sync.Mutex
+	Conns []Socket
+}
+
 func (socket *Socket) AddRooms(rooms []string) {
 	socket.Rooms = append(socket.Rooms, rooms...)
 }
-func CaptureSocketEvents(socket Socket, Connections main.Connections) {
+func CaptureSocketEvents(socket *Socket, Connections *Connections) {
 
 	for {
 		msgType, msg, err := socket.Conn.ReadMessage()
