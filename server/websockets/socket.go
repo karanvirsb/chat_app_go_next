@@ -1,4 +1,4 @@
-package socketEvents
+package websockets
 
 import (
 	"encoding/json"
