@@ -1,7 +1,7 @@
 package main
 
 import (
-	"chat_app_server/socketEvents"
+	"chat_app_server/websockets"
 	"fmt"
 	"net/http"
 
@@ -32,8 +32,8 @@ func generateId() string {
 	return uuid.NewString()
 }
 
-var connections = socketEvents.Connections{
-	Conns: []socketEvents.Socket{},
+var connections = websockets.Connections{
+	Conns: []websockets.Socket{},
 }
 
 func main() {
@@ -48,7 +48,7 @@ func main() {
 		var vars = mux.Vars(r)
 
 		// creating socket
-		socket := socketEvents.Socket{
+		socket := websockets.Socket{
 			Id:    generateId(),
 			Rooms: []string{vars["room"]},
 			Conn:  conn,
@@ -56,7 +56,7 @@ func main() {
 
 		connections.AddConnection(socket)
 		fmt.Printf("socket connected: %v", socket.Conn.RemoteAddr())
-		socketEvents.CaptureSocketEvents(&socket, &connections)
+		websockets.CaptureSocketEvents(&socket, &connections)
 	})
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Server request")
