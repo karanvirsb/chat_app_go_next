@@ -47,14 +47,26 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections) {
 		}
 
 		msg, _ := json.Marshal(jsonMessage)
+
 		fmt.Printf("\nJSON message: %v\n", string(msg))
 
-		for _, socket := range Connections.Conns {
-			err := socket.Conn.WriteJSON(string(msg))
-			if err != nil {
-				fmt.Printf("\nError while sending message: %v\n", err)
-				continue
+		switch jsonMessage.EventName {
+		case "join_room":
+			// add room to socket and add socket to rooms map
+		case "send_message_to_room":
+			// range over each socket in a room and send message
+
+		case "send_message_to_all":
+			for _, socket := range Connections.Conns {
+				err := socket.Conn.WriteJSON(string(msg))
+				if err != nil {
+					fmt.Printf("\nError while sending message: %v\n", err)
+					continue
+				}
 			}
+		default:
+			socket.Conn.WriteMessage(1, []byte("Error: That event does not exist"))
 		}
+
 	}
 }
