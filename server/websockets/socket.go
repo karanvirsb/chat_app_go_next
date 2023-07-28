@@ -33,36 +33,28 @@ func (c *Connections) AddConnection(conn Socket) {
 	defer c.Mu.Unlock()
 	c.Conns = append(c.Conns, conn)
 }
+
 func CaptureSocketEvents(socket *Socket, Connections *Connections) {
 
 	for {
-		// msgType, msg, err := socket.Conn.ReadMessage()
-		// if err != nil {
-		// 	fmt.Printf("Read Message Error: %v\n", err)
-		// }
-		// fmt.Printf("\nmsgType: %v\nmsg: %v\n\n", msgType, string(msg))
 
 		jsonMessage := Message[any]{}
-		errr := socket.Conn.ReadJSON(&jsonMessage)
+		err := socket.Conn.ReadJSON(&jsonMessage)
 
-		if errr != nil {
-			fmt.Printf("\nJson Message Error: %v\n", errr)
+		if err != nil {
+			fmt.Printf("\nJson Message Error: %v\n", err)
 			continue
 		}
+
 		msg, _ := json.Marshal(jsonMessage)
 		fmt.Printf("\nJSON message: %v\n", string(msg))
-		// fmt.Printf("%v -- sent message: %v\n",.Conn.RemoteAddr(), string(msg))
+
 		for _, socket := range Connections.Conns {
-			// err = socket.Conn.WriteMessage(msgType, msg)
 			err := socket.Conn.WriteJSON(string(msg))
 			if err != nil {
 				fmt.Printf("\nError while sending message: %v\n", err)
 				continue
 			}
 		}
-		// Write message back to browser
-		// if err = socket.Conn.WriteMessage(msgType, msg); err != nil {
-		// 	return
-		// }
 	}
 }
