@@ -15,9 +15,8 @@ type Message struct {
 }
 
 type Socket struct {
-	Id    string
-	Rooms []string
-	Conn  *websocket.Conn
+	Id   string
+	Conn *websocket.Conn
 }
 
 type Connections struct {
@@ -25,9 +24,6 @@ type Connections struct {
 	Conns []Socket
 }
 
-func (socket *Socket) AddRooms(rooms []string) {
-	socket.Rooms = append(socket.Rooms, rooms...)
-}
 func (c *Connections) AddConnection(conn Socket) {
 	c.Mu.Lock()
 	defer c.Mu.Unlock()
