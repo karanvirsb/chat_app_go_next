@@ -48,11 +48,22 @@ func main() {
 			fmt.Printf("Error web socket: %v", err)
 		}
 		var vars = mux.Vars(r)
+		room := vars["room"]
 
 		// creating socket
 		socket := websockets.Socket{
 			Id:   generateId(),
 			Conn: conn,
+		}
+		if foundRoom := DoesRoomExist(rooms, room); foundRoom != nil {
+			foundRoom.Register <- &socket
+			defer func() { foundRoom.Unregister <- &socket }()
+			foundRoom.RunRoom()
+		} else {
+			newRoom := websockets.NewRoom(room)
+			newRoom.Register <- &socket
+			defer func() { newRoom.Unregister <- &socket }()
+			rooms[room] = *newRoom
 		}
 
 		connections.AddConnection(socket)
@@ -63,4 +74,12 @@ func main() {
 		fmt.Println("Server request")
 	})
 	http.ListenAndServe(":8000", router)
+}
+
+func DoesRoomExist(rooms map[string]websockets.Room, roomName string) *websockets.Room {
+	r, ok := rooms[roomName]
+	if !ok {
+		return nil
+	}
+	return &r
 }
