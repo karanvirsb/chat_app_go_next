@@ -17,3 +17,22 @@ func NewRoom(name string) *Room {
 		Broadcast:  make(chan *Message),
 	}
 }
+
+func (room *Room) RunRoom() {
+	for {
+		select {
+		case socket := <-room.Register:
+			room.Sockets[socket] = true
+		case socket := <-room.Unregister:
+			_, ok := room.Sockets[socket]
+			if ok {
+				delete(room.Sockets, socket)
+			}
+		case message := <-room.Broadcast:
+			for s := range room.Sockets {
+				s.Conn.WriteJSON(*message)
+			}
+		}
+
+	}
+}
