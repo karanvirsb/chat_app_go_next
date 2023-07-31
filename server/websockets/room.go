@@ -7,3 +7,13 @@ type Room struct {
 	Sockets    map[*Socket]bool
 	Broadcast  chan *Message
 }
+
+func NewRoom(name string) *Room {
+	return &Room{
+		Name:       name,
+		Register:   make(chan *Socket),
+		Unregister: make(chan *Socket),
+		Sockets:    make(map[*Socket]bool),
+		Broadcast:  make(chan *Message),
+	}
+}
