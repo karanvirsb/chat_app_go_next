@@ -36,6 +36,8 @@ var connections = websockets.Connections{
 	Conns: []websockets.Socket{},
 }
 
+var rooms = map[string]websockets.Room{}
+
 func main() {
 
 	router := mux.NewRouter()
@@ -49,9 +51,8 @@ func main() {
 
 		// creating socket
 		socket := websockets.Socket{
-			Id:    generateId(),
-			Rooms: []string{vars["room"]},
-			Conn:  conn,
+			Id:   generateId(),
+			Conn: conn,
 		}
 
 		connections.AddConnection(socket)
