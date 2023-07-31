@@ -8,8 +8,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type Message[T any] struct {
-	Data      T        `json:"data,omitempty"`
+type Message struct {
+	Data      any      `json:"data,omitempty"`
 	EventName string   `json:"eventName,omitempty"`
 	Room      []string `json:"room,omitempty"`
 }
@@ -38,7 +38,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections) {
 
 	for {
 
-		jsonMessage := Message[any]{}
+		jsonMessage := Message{}
 		err := socket.Conn.ReadJSON(&jsonMessage)
 
 		if err != nil {
