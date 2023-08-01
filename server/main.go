@@ -56,13 +56,16 @@ func main() {
 			Conn: conn,
 		}
 		if foundRoom := DoesRoomExist(rooms, room); foundRoom != nil {
+			fmt.Println("Found room")
+			go foundRoom.RunRoom()
 			foundRoom.Register <- &socket
 			defer func() { foundRoom.Unregister <- &socket }()
-			foundRoom.RunRoom()
 		} else {
+			fmt.Println("New room")
 			newRoom := websockets.NewRoom(room)
-			newRoom.Register <- &socket
+			go newRoom.RunRoom()
 			defer func() { newRoom.Unregister <- &socket }()
+			newRoom.Register <- &socket
 			rooms[room] = *newRoom
 		}
 
