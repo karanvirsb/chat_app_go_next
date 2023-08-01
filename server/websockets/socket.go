@@ -30,7 +30,7 @@ func (c *Connections) AddConnection(conn Socket) {
 	c.Conns = append(c.Conns, conn)
 }
 
-func CaptureSocketEvents(socket *Socket, Connections *Connections) {
+func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[string]Room) {
 
 	for {
 
@@ -38,7 +38,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections) {
 		err := socket.Conn.ReadJSON(&jsonMessage)
 
 		if err != nil {
-			fmt.Printf("\nJson Message Error: %v\n", err)
+			// fmt.Printf("\nJson Message Error: %v\n", err)
 			continue
 		}
 
