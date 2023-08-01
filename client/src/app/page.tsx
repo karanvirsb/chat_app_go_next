@@ -71,7 +71,8 @@ function Chat() {
           type="button"
           onClick={() => {
             if (!message.current) return;
-            if (message.current.value.length < 3) return;
+            if (message.current.value.length < 3)
+              alert("Message needs to be at least 3 characters long!");
             sendJsonMessage({
               data: message.current.value,
               eventName: "globalMessage",
