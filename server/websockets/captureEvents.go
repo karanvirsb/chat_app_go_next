@@ -16,8 +16,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 
 	for {
 
-		jsonMessage := Message{}
-		err := socket.Conn.ReadJSON(&jsonMessage)
+		jsonMessage, err := socket.read()
 
 		if err != nil {
 			fmt.Printf("\nJson Message Error: %v\n", err)
