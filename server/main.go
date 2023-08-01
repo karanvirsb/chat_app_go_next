@@ -4,6 +4,7 @@ import (
 	"chat_app_server/websockets"
 	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -43,10 +44,12 @@ func main() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/socket/{room}", func(w http.ResponseWriter, r *http.Request) {
+		wg := sync.WaitGroup{}
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			fmt.Printf("Error web socket: %v", err)
 		}
+		defer conn.Close()
 		var vars = mux.Vars(r)
 		room := vars["room"]
 
@@ -57,12 +60,14 @@ func main() {
 		}
 		if foundRoom := DoesRoomExist(rooms, room); foundRoom != nil {
 			fmt.Println("Found room")
+			wg.Add(1)
 			go foundRoom.RunRoom()
 			foundRoom.Register <- &socket
 			defer func() { foundRoom.Unregister <- &socket }()
 		} else {
 			fmt.Println("New room")
 			newRoom := websockets.NewRoom(room)
+			wg.Add(1)
 			go newRoom.RunRoom()
 			defer func() { newRoom.Unregister <- &socket }()
 			newRoom.Register <- &socket
@@ -71,7 +76,12 @@ func main() {
 
 		connections.AddConnection(socket)
 		fmt.Printf("socket connected: %v", socket.Conn.RemoteAddr())
-		websockets.CaptureSocketEvents(&socket, &connections, &rooms)
+		wg.Add(2)
+		go websockets.CaptureSocketEvents(&socket, &connections, &rooms)
+		wg.Wait()
+		defer wg.Done()
+
+		fmt.Println("Connection closed")
 	})
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Server request")
