@@ -17,7 +17,7 @@ export default function Home() {
 
 interface Message<T> {
   data?: T;
-  room?: string[];
+  room?: string;
   eventName?: string;
 }
 
@@ -34,8 +34,8 @@ function Chat() {
   useEffect(() => {
     if (readyState !== 1) return;
     if (lastJsonMessage === null) return;
+    const jsonMessage = lastJsonMessage as Message<any>;
 
-    const jsonMessage = JSON.parse(lastJsonMessage + "\n") as Message<any>;
     console.log(
       `Last Json Message ${new Date().toLocaleDateString()}`,
       jsonMessage
@@ -75,8 +75,8 @@ function Chat() {
               alert("Message needs to be at least 3 characters long!");
             sendJsonMessage({
               data: message.current.value,
-              eventName: "globalMessage",
-              room: [room],
+              eventName: "send_message_to_room",
+              room: room,
             } satisfies Message<string>);
             message.current.value = "";
           }}
