@@ -4,31 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"sync"
-
-	"github.com/gorilla/websocket"
 )
 
 type Message struct {
 	Data      any    `json:"data,omitempty"`
 	EventName string `json:"eventName,omitempty"`
 	Room      string `json:"room,omitempty"`
-}
-
-type Socket struct {
-	Id   string
-	Conn *websocket.Conn
-}
-
-type Connections struct {
-	Mu    sync.Mutex
-	Conns []Socket
-}
-
-func (c *Connections) AddConnection(conn Socket) {
-	c.Mu.Lock()
-	defer c.Mu.Unlock()
-	c.Conns = append(c.Conns, conn)
 }
 
 func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[string]Room) {
