@@ -71,7 +71,7 @@ func main() {
 
 		connections.AddConnection(socket)
 		fmt.Printf("socket connected: %v", socket.Conn.RemoteAddr())
-		websockets.CaptureSocketEvents(&socket, &connections)
+		websockets.CaptureSocketEvents(&socket, &connections, &rooms)
 	})
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Server request")
