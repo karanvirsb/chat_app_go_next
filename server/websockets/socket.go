@@ -3,15 +3,16 @@ package websockets
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/gorilla/websocket"
 )
 
 type Message struct {
-	Data      any      `json:"data,omitempty"`
-	EventName string   `json:"eventName,omitempty"`
-	Room      []string `json:"room,omitempty"`
+	Data      any    `json:"data,omitempty"`
+	EventName string `json:"eventName,omitempty"`
+	Room      string `json:"room,omitempty"`
 }
 
 type Socket struct {
@@ -38,7 +39,10 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		err := socket.Conn.ReadJSON(&jsonMessage)
 
 		if err != nil {
-			// fmt.Printf("\nJson Message Error: %v\n", err)
+			fmt.Printf("\nJson Message Error: %v\n", err)
+			if strings.Contains(err.Error(), "close") {
+				break
+			}
 			continue
 		}
 
@@ -50,7 +54,9 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		case "join_room":
 			// add room to socket and add socket to rooms map
 		case "send_message_to_room":
-			// range over each socket in a room and send message
+			if room, ok := (*rooms)[jsonMessage.Room]; ok {
+				room.Broadcast <- &jsonMessage
+			}
 
 		case "send_message_to_all":
 			for _, socket := range Connections.Conns {
