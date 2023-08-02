@@ -9,10 +9,24 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useReducer, useRef, useState } from "react";
+import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 
+const rooms = ["1", "2", "3"];
 export default function Home() {
-  return <Chat></Chat>;
+  const websocketHook = useWebSocket(`ws://localhost:8000/socket`);
+
+  useEffect(() => {
+    if (websocketHook.readyState !== 1) return;
+    rooms.forEach((room) => {
+      websocketHook.sendJsonMessage({
+        eventName: "join_room",
+        room,
+      } satisfies Message<any>);
+    });
+  }, [websocketHook]);
+
+  return <Chat websocketHook={websocketHook}></Chat>;
 }
 
 interface Message<T> {
@@ -25,12 +39,16 @@ interface MessageHistory {
   [key: string]: Message<unknown>[];
 }
 
-function Chat() {
-  const [messageHistory, setMessageHistory] = useState<MessageHistory>({});
+function Chat({
+  websocketHook,
+}: {
+  websocketHook: WebSocketHook<JsonValue | null, MessageEvent<any> | null>;
+}) {
+  const { lastJsonMessage, readyState, sendJsonMessage } = websocketHook;
   const [room, setRoom] = useState("1");
+  const [messageHistory, setMessageHistory] = useState<MessageHistory>({});
   const message = useRef<HTMLTextAreaElement | null>(null);
-  const { lastJsonMessage, sendJsonMessage, readyState, getWebSocket } =
-    useWebSocket(`ws://localhost:8000/socket/${room}`);
+
   useEffect(() => {
     if (readyState !== 1) return;
     if (lastJsonMessage === null) return;
@@ -41,6 +59,7 @@ function Chat() {
       jsonMessage
     );
     if (!jsonMessage?.room?.includes(room)) return;
+
     setMessageHistory((prev) => {
       let prevRoom = prev[room] ?? [];
       prevRoom.push(lastJsonMessage as Message<any>);
