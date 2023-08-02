@@ -8,6 +8,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ToastClose } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useReducer, useRef, useState } from "react";
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
@@ -24,7 +26,7 @@ export default function Home() {
         room,
       } satisfies Message<any>);
     });
-  }, [websocketHook]);
+  }, [websocketHook.readyState, websocketHook.sendJsonMessage]);
 
   return <Chat websocketHook={websocketHook}></Chat>;
 }
@@ -47,6 +49,7 @@ function Chat({
   const { lastJsonMessage, readyState, sendJsonMessage } = websocketHook;
   const [room, setRoom] = useState("1");
   const [messageHistory, setMessageHistory] = useState<MessageHistory>({});
+  const { toast } = useToast();
   const message = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
@@ -58,6 +61,15 @@ function Chat({
       `Last Json Message ${new Date().toLocaleDateString()}`,
       jsonMessage
     );
+    if (jsonMessage.room && jsonMessage.room !== room) {
+      // set notification for that room
+      toast({
+        title: "You got a message!",
+        duration: 30000,
+        action: <ToastClose />,
+        description: `You got a message from room {${jsonMessage.room}}`,
+      });
+    }
     if (!jsonMessage?.room?.includes(room)) return;
 
     setMessageHistory((prev) => {
@@ -68,7 +80,7 @@ function Chat({
         [room]: prevRoom,
       };
     });
-  }, [lastJsonMessage, readyState, room]);
+  }, [lastJsonMessage, readyState, room, toast]);
   return (
     <div>
       <div>
