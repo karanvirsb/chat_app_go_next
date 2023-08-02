@@ -12,10 +12,10 @@ export default function Auth() {
   const { register, handleSubmit } = useForm<Inputs>();
 
   return (
-    <div>
+    <div className="max-w-sm shadow-md px-2 py-1 rounded-md">
       <form onSubmit={handleSubmit(handleOnSubmit)}>
         <Input type="text" {...register("username")} placeholder="Username" />
-        <Button type="submit" />
+        <Button type="submit">Login</Button>
       </form>
     </div>
   );
