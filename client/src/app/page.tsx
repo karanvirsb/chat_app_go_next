@@ -14,6 +14,16 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 
+interface Message<T> {
+  data?: T;
+  room?: string;
+  eventName?: string;
+}
+
+interface MessageHistory {
+  [key: string]: Message<unknown>[];
+}
+
 const rooms = ["1", "2", "3"];
 export default function Home() {
   const websocketHook = useWebSocket(`ws://localhost:8000/socket`);
@@ -29,16 +39,6 @@ export default function Home() {
   }, [websocketHook.readyState, websocketHook.sendJsonMessage]);
 
   return <Chat websocketHook={websocketHook}></Chat>;
-}
-
-interface Message<T> {
-  data?: T;
-  room?: string;
-  eventName?: string;
-}
-
-interface MessageHistory {
-  [key: string]: Message<unknown>[];
 }
 
 function Chat({
