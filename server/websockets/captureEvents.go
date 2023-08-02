@@ -33,6 +33,22 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		switch jsonMessage.EventName {
 		case "join_room":
 			// add room to socket and add socket to rooms map
+			if foundRoom := DoesRoomExist(*rooms, jsonMessage.Room); foundRoom != nil {
+				fmt.Println("Found room")
+
+				go foundRoom.RunRoom()
+				foundRoom.Register <- socket
+				defer func() { foundRoom.Unregister <- socket }()
+			} else {
+				fmt.Println("New room")
+				newRoom := NewRoom(jsonMessage.Room)
+
+				go newRoom.RunRoom()
+				defer func() { newRoom.Unregister <- socket }()
+				newRoom.Register <- socket
+				(*rooms)[jsonMessage.Room] = *newRoom
+			}
+
 		case "send_message_to_room":
 			if room, ok := (*rooms)[jsonMessage.Room]; ok {
 				room.Broadcast <- &jsonMessage
@@ -51,4 +67,11 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		}
 
 	}
+}
+func DoesRoomExist(rooms map[string]Room, roomName string) *Room {
+	r, ok := rooms[roomName]
+	if !ok {
+		return nil
+	}
+	return &r
 }
