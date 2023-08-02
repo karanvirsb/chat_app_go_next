@@ -10,6 +10,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { ToastClose } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuthContext } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import { useEffect, useReducer, useRef, useState } from "react";
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
@@ -26,7 +28,15 @@ interface MessageHistory {
 
 const rooms = ["1", "2", "3"];
 export default function Home() {
+  const { username } = useAuthContext();
+  const router = useRouter();
   const websocketHook = useWebSocket(`ws://localhost:8000/socket`);
+
+  useEffect(() => {
+    if (username.length == 0 || !username) {
+      router.replace("/auth");
+    }
+  }, [username, router]);
 
   useEffect(() => {
     if (websocketHook.readyState !== 1) return;
