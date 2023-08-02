@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuthContext } from "@/context/AuthContext";
 import React from "react";
 import { useForm } from "react-hook-form";
 
@@ -10,7 +11,7 @@ interface Inputs {
 
 export default function Auth() {
   const { register, handleSubmit } = useForm<Inputs>();
-
+  const { updateUsername } = useAuthContext();
   return (
     <div className="min-w-sm max-w-md w-full shadow-md px-4 py-2 rounded-md bg-white">
       <h1 className="text-center font-semibold text-3xl mb-4">Login</h1>
@@ -25,6 +26,6 @@ export default function Auth() {
   );
 
   function handleOnSubmit(data: Inputs) {
-    console.log(data);
+    updateUsername(data.username);
   }
 }
