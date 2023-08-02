@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import AuthContextProvier from "@/context/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +19,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <AuthContextProvier>{children}</AuthContextProvier>
+      </body>
       <time dateTime="2023-08-02" suppressHydrationWarning />
       <Toaster />
     </html>
