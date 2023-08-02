@@ -12,7 +12,7 @@ export default function Auth() {
   const { register, handleSubmit } = useForm<Inputs>();
 
   return (
-    <div className="max-w-sm shadow-md px-4 py-2 rounded-md">
+    <div className="min-w-sm max-w-md w-full shadow-md px-4 py-2 rounded-md bg-white">
       <h1 className="text-center font-semibold text-3xl mb-4">Login</h1>
       <form
         onSubmit={handleSubmit(handleOnSubmit)}
