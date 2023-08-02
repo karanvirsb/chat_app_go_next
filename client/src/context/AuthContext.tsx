@@ -1,14 +1,17 @@
 "use client";
-import React, { createContext, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 interface IAuthContext {
   username: string;
   updateUsername: (name: string) => void;
 }
 
-export const AuthContext = createContext<IAuthContext | null>(null);
+export const AuthContext = createContext<IAuthContext>({
+  username: "",
+  updateUsername: () => {},
+});
 
-export default function AuthContextProvier({
+export function AuthContextProvider({
   children,
 }: {
   children: React.ReactNode;
@@ -23,4 +26,8 @@ export default function AuthContextProvier({
   function updateUsername(name: string) {
     setUsername(name);
   }
+}
+
+export function useAuthContext() {
+  return useContext(AuthContext);
 }
