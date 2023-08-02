@@ -1,3 +1,4 @@
+"use client";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 import type { Metadata } from "next";
@@ -18,6 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>{children}</body>
+      <time dateTime="2023-08-02" suppressHydrationWarning />
       <Toaster />
     </html>
   );
