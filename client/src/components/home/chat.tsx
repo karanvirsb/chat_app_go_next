@@ -63,9 +63,8 @@ export function Chat({
     });
   }, [lastJsonMessage, readyState, room, toast]);
   return (
-    <div>
-      <div>
-        <div className="flex">
+    <div className="h-full flex flex-col gap-4 py-2">
+      {/* <div className="flex">
           <h1>Send Messages</h1>
           <Select onValueChange={(val) => setRoom(val)}>
             <SelectTrigger>
@@ -77,7 +76,13 @@ export function Chat({
               <SelectItem value="3">Room 3</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
+      <section className="flex-grow bg-slate-400">
+        {messageHistory[room]?.map((msg, index) => {
+          return <div key={index}>{JSON.stringify(msg)}</div>;
+        })}
+      </section>
+      <div className="flex items-center gap-4">
         <Textarea ref={message}></Textarea>
         <Button
           type="button"
@@ -96,13 +101,6 @@ export function Chat({
           Send Message
         </Button>
       </div>
-      <section>
-        <h1>All Messages</h1>
-
-        {messageHistory[room]?.map((msg, index) => {
-          return <div key={index}>{JSON.stringify(msg)}</div>;
-        })}
-      </section>
     </div>
   );
 }
