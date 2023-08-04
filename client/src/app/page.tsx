@@ -1,5 +1,6 @@
 "use client";
 import { Chat, Message } from "@/components/home/chat";
+import { Members } from "@/components/home/members";
 import { Sidebar } from "@/components/home/sidebar";
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -34,7 +35,8 @@ export default function Home() {
   return (
     <main>
       <Sidebar></Sidebar>
-      <Chat websocketHook={websocketHook}></Chat>;
+      <Chat websocketHook={websocketHook}></Chat>
+      <Members></Members>
     </main>
   );
 }
