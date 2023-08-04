@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuthContext } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -18,7 +19,7 @@ interface Inputs {
 
 export default function Auth() {
   const form = useForm<Inputs>();
-
+  const router = useRouter();
   const { updateUsername } = useAuthContext();
   const [usernameErr, setUsernameErr] = useState("");
 
@@ -57,6 +58,8 @@ export default function Auth() {
       setUsernameErr("Username must be 3 characters long.");
       return;
     }
+    setUsernameErr("");
     updateUsername(data.username);
+    router.replace("/");
   }
 }
