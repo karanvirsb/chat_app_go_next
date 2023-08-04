@@ -20,7 +20,7 @@ interface Inputs {
 export default function Auth() {
   const form = useForm<Inputs>();
   const router = useRouter();
-  const { updateUsername } = useAuthContext();
+  const { updateSession } = useAuthContext();
   const [usernameErr, setUsernameErr] = useState("");
 
   return (
@@ -59,7 +59,7 @@ export default function Auth() {
       return;
     }
     setUsernameErr("");
-    updateUsername(data.username);
+    updateSession({ username: data.username });
     router.replace("/");
   }
 }
