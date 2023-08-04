@@ -5,8 +5,8 @@ import { Button } from "../ui/button";
 export function Sidebar() {
   const [activeRoom, setActiveRoom] = useState("1");
   return (
-    <div>
-      <h1>Go Chat</h1>
+    <div className="px-2">
+      <h1 className="text-[32px] font-semibold text-center">Go Chat</h1>
       <div className="flex flex-col gap-4 mt-4">
         {rooms.map((room) => {
           return (
