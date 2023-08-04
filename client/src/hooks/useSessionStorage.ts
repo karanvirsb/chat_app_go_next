@@ -1,25 +1,15 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 
-interface ISessionStorage {
+export interface ISessionStorage {
   username: string;
 }
 
 export default function useSessionStorage() {
-  const [storage, setStorage] = useState<ISessionStorage | null>(null);
-
-  useEffect(() => {
-    const userSessionStorage = sessionStorage.getItem("go_chat_session");
-
-    if (!userSessionStorage) {
-      sessionStorage.setItem(
-        "go_chat_session",
-        JSON.stringify({ username: "" } satisfies ISessionStorage)
-      );
-      return;
-    }
-
-    setStorage(JSON.parse(userSessionStorage));
-  }, []);
+  const [storage, setStorage] = useState<ISessionStorage | null>(
+    sessionStorage.getItem("go_chat_session")
+      ? JSON.parse(sessionStorage.getItem("go_chat_session") as string)
+      : null
+  );
 
   function updateStorage(items: ISessionStorage) {
     sessionStorage.setItem("go_chat_session", JSON.stringify(items));
