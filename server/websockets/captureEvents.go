@@ -12,6 +12,10 @@ type Message struct {
 	Room      string `json:"room,omitempty"`
 }
 
+type MessageJoinRoom struct {
+	Username string `json:"username,omitempty"`
+}
+
 func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[string]Room) {
 
 	for {
@@ -32,6 +36,12 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 
 		switch jsonMessage.EventName {
 		case "join_room":
+			var usernameCheck interface{} = jsonMessage.Data
+			s, ok := usernameCheck.(MessageJoinRoom)
+			if !ok {
+				fmt.Println("Error does not contain username - line 42 - captureEvents.go")
+			}
+			socket.Username = s.Username
 			// add room to socket and add socket to rooms map
 			if foundRoom := DoesRoomExist(*rooms, jsonMessage.Room); foundRoom != nil {
 				fmt.Println("Found room")
