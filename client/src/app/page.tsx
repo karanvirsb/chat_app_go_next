@@ -44,6 +44,7 @@ export default function Home() {
     rooms.forEach((room) => {
       websocketHook.sendJsonMessage({
         eventName: "join_room",
+        data: { username: session?.username },
         room,
       } satisfies Message<any>);
     });
