@@ -1,12 +1,13 @@
 "use client";
 import { Chat, Message } from "@/components/home/chat";
+import { Sidebar } from "@/components/home/sidebar";
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 
-const rooms = ["1", "2", "3"];
+export const rooms = ["1", "2", "3"];
 export default function Home() {
   const { session } = useAuthContext();
   const router = useRouter();
@@ -30,5 +31,10 @@ export default function Home() {
     });
   }, [websocketHook.readyState, websocketHook.sendJsonMessage]);
 
-  return <Chat websocketHook={websocketHook}></Chat>;
+  return (
+    <main>
+      <Sidebar></Sidebar>
+      <Chat websocketHook={websocketHook}></Chat>;
+    </main>
+  );
 }
