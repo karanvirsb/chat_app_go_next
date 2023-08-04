@@ -61,7 +61,7 @@ func main() {
 
 		connections.AddConnection(socket)
 		fmt.Printf("socket connected: %v", socket.Conn.RemoteAddr())
-		wg.Add(2)
+		wg.Add(1)
 		go websockets.CaptureSocketEvents(&socket, &connections, &rooms)
 		wg.Wait()
 		defer wg.Done()
