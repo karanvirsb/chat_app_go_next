@@ -22,7 +22,7 @@ export interface MessageHistory {
   [key: string]: Message<unknown>[];
 }
 
-export default function Chat({
+export function Chat({
   websocketHook,
 }: {
   websocketHook: WebSocketHook<JsonValue | null, MessageEvent<any> | null>;
