@@ -7,8 +7,9 @@ type ISocket interface {
 }
 
 type Socket struct {
-	Id   string
-	Conn *websocket.Conn
+	Id       string
+	Username string
+	Conn     *websocket.Conn
 }
 
 func (s *Socket) read() (Message, error) {
