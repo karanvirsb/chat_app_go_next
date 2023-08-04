@@ -33,7 +33,7 @@ export default function Home() {
   }, [websocketHook.readyState, websocketHook.sendJsonMessage]);
 
   return (
-    <main>
+    <main className="grid sm:grid-cols-1 md:grid-cols-[1fr_4fr_1fr] gap-4 min-h-screen">
       <Sidebar></Sidebar>
       <Chat websocketHook={websocketHook}></Chat>
       <Members></Members>
