@@ -1,14 +1,15 @@
 "use client";
-import React, { createContext, useContext, useState } from "react";
+import useSessionStorage, { ISessionStorage } from "@/hooks/useSessionStorage";
+import React, { createContext, useContext } from "react";
 
 interface IAuthContext {
-  username: string;
-  updateUsername: (name: string) => void;
+  session: ISessionStorage | null;
+  updateSession: (session: ISessionStorage) => void;
 }
 
 export const AuthContext = createContext<IAuthContext>({
-  username: "",
-  updateUsername: () => {},
+  session: null,
+  updateSession: () => {},
 });
 
 export function AuthContextProvider({
@@ -16,16 +17,14 @@ export function AuthContextProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [username, setUsername] = useState<string>("");
+  const { storage: session, updateStorage: updateSession } =
+    useSessionStorage();
+
   return (
-    <AuthContext.Provider value={{ username, updateUsername }}>
+    <AuthContext.Provider value={{ session, updateSession }}>
       {children}
     </AuthContext.Provider>
   );
-
-  function updateUsername(name: string) {
-    setUsername(name);
-  }
 }
 
 export function useAuthContext() {
