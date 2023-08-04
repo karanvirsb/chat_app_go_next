@@ -7,20 +7,22 @@ export function Sidebar() {
   return (
     <div>
       <h1>Go Chat</h1>
-      {rooms.map((room) => {
-        return (
-          <Button
-            key={room}
-            variant="link"
-            className={activeRoom === room ? "bg-blue-400" : ""}
-            onClick={() => {
-              setActiveRoom(room);
-            }}
-          >
-            {room}
-          </Button>
-        );
-      })}
+      <div className="flex flex-col gap-4 mt-4">
+        {rooms.map((room) => {
+          return (
+            <Button
+              key={room}
+              variant="link"
+              className={activeRoom === room ? "bg-blue-400" : ""}
+              onClick={() => {
+                setActiveRoom(room);
+              }}
+            >
+              Room {room}
+            </Button>
+          );
+        })}
+      </div>
     </div>
   );
 }
