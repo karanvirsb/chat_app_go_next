@@ -21,11 +21,6 @@ export default function useSessionStorage() {
     setStorage(JSON.parse(userSessionStorage));
   }, []);
 
-  function getUserSession() {
-    const session = sessionStorage.getItem("go_chat_session");
-    return session ? JSON.parse(session) : null;
-  }
-
   function updateStorage(items: ISessionStorage) {
     sessionStorage.setItem("go_chat_session", JSON.stringify(items));
     const session = sessionStorage.getItem("go_chat_session");
@@ -34,5 +29,5 @@ export default function useSessionStorage() {
     }
   }
 
-  return { getUserSession, updateStorage } as const;
+  return { storage, updateStorage } as const;
 }
