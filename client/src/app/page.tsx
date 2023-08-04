@@ -28,15 +28,16 @@ interface MessageHistory {
 
 const rooms = ["1", "2", "3"];
 export default function Home() {
-  const { username } = useAuthContext();
+  const { session } = useAuthContext();
   const router = useRouter();
   const websocketHook = useWebSocket(`ws://localhost:8000/socket`);
 
   useEffect(() => {
-    if (username.length == 0 || !username) {
+    console.log(session);
+    if (!session || (session && session.username.length == 0)) {
       router.replace("/auth");
     }
-  }, [username, router]);
+  }, [session, router]);
 
   useEffect(() => {
     if (websocketHook.readyState !== 1) return;
