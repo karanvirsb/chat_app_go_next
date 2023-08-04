@@ -1,5 +1,5 @@
 "use client";
-import Chat, { Message } from "@/components/home/chat";
+import { Chat, Message } from "@/components/home/chat";
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
