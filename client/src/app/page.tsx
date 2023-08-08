@@ -22,16 +22,24 @@ export default function Home() {
   }, [session, router]);
 
   useEffect(() => {
-    if (websocketHook.readyState !== 1) return;
+    const websocket = websocketHook?.getWebSocket();
+    if (websocket != null) {
+      websocket.addEventListener("error", (ev) => {
+        console.log("Websocket Error: ", ev);
+      });
+    }
+  }, [websocketHook]);
+
+  useEffect(() => {
     if (!session || !session?.username || session.username.length < 3) return;
     rooms.forEach((room) => {
-      websocketHook.sendJsonMessage({
+      websocketHook?.sendJsonMessage({
         eventName: "join_room",
         data: { username: session?.username },
         room,
       } satisfies Message<any>);
     });
-  }, [websocketHook.readyState, websocketHook.sendJsonMessage]);
+  }, []);
 
   return (
     <main className="grid sm:grid-cols-1 md:grid-cols-[1fr_4fr_1fr] gap-4 min-h-screen">
