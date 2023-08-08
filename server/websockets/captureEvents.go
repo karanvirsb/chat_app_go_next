@@ -1,8 +1,11 @@
 package websockets
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+
+	"log"
 	"strings"
 )
 
@@ -17,13 +20,17 @@ type MessageJoinRoom struct {
 }
 
 func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[string]Room) {
-
+	var (
+		buf    bytes.Buffer
+		logger = log.New(&buf, "capture socket events logger: ", log.Default().Flags())
+	)
 	for {
 
 		jsonMessage, err := socket.read()
 
 		if err != nil {
-			fmt.Printf("\nJson Message Error: %v\n", err)
+
+			logger.Printf("\nJson Message Error: %v\n", err)
 			if strings.Contains(err.Error(), "close") {
 				break
 			}
@@ -32,30 +39,30 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 
 		msg, _ := json.Marshal(jsonMessage)
 
-		fmt.Printf("\nJSON message: %v\n", string(msg))
+		logger.Printf("\nJSON message: %v\n", string(msg))
 
 		switch jsonMessage.EventName {
 		case "join_room":
-			fmt.Printf("Join room case: %v\n", jsonMessage.Room)
+			logger.Printf("Join room case: %v\n", jsonMessage.Room)
 			msg := Message[MessageJoinRoom]{}
 			err := socket.Conn.ReadJSON(&msg)
 
 			if err != nil {
-				fmt.Printf("Error not a json - \n%v\n - \n%v\n", msg, err)
+				logger.Printf("Error not a json - \n%v\n - \n%v\n", msg, err)
 				return
 			}
 
 			socket.Username = msg.Data.Username
 			// add room to socket and add socket to rooms map
-			fmt.Printf("Does Room %v Exist: %v\n", msg.Room, DoesRoomExist(rooms, msg.Room))
+			logger.Printf("Does Room %v Exist: %v\n", msg.Room, DoesRoomExist(rooms, msg.Room))
 			if foundRoom := DoesRoomExist(rooms, msg.Room); foundRoom != nil {
-				fmt.Printf("Found room: %v\n", msg.Room)
+				logger.Printf("Found room: %v\n", msg.Room)
 				// wg.Add(1)
 				go foundRoom.RunRoom()
 				foundRoom.Register <- socket
 				defer func() { foundRoom.Unregister <- socket }()
 			} else {
-				fmt.Printf("New room: %v\n", msg.Room)
+				logger.Printf("New room: %v\n", msg.Room)
 				newRoom := NewRoom(msg.Room)
 				// wg.Add(1)
 				go newRoom.RunRoom()
@@ -67,7 +74,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			// wg.Wait()
 
 			// wg.Done()
-			fmt.Printf("Ended join room: %v", msg.Room)
+			logger.Printf("Ended join room: %v", msg.Room)
 
 		case "send_message_to_room":
 			if room, ok := (*rooms)[jsonMessage.Room]; ok {
@@ -78,7 +85,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			for _, socket := range Connections.Conns {
 				err := socket.Conn.WriteJSON(string(msg))
 				if err != nil {
-					fmt.Printf("\nError while sending message: %v\n", err)
+					logger.Printf("\nError while sending message: %v\n", err)
 					continue
 				}
 			}
@@ -86,6 +93,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			socket.Conn.WriteMessage(1, []byte("Error: That event does not exist"))
 		}
 
+		fmt.Println(&buf)
 	}
 }
 func DoesRoomExist(rooms *map[string]Room, roomName string) *Room {
