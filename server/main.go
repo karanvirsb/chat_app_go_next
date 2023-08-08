@@ -34,7 +34,7 @@ func generateId() string {
 }
 
 var connections = websockets.Connections{
-	Conns: []websockets.Socket{},
+	Conns: []*websockets.Socket{},
 }
 
 var rooms = map[string]websockets.Room{}
@@ -43,8 +43,9 @@ func main() {
 
 	router := mux.NewRouter()
 
+	wg := sync.WaitGroup{}
+	wgCounter := 1
 	router.HandleFunc("/socket", func(w http.ResponseWriter, r *http.Request) {
-		wg := sync.WaitGroup{}
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			fmt.Printf("Error web socket: %v", err)
@@ -59,9 +60,10 @@ func main() {
 			Conn: conn,
 		}
 
-		connections.AddConnection(socket)
+		connections.AddConnection(&socket)
 		fmt.Printf("socket connected: %v\n", socket.Conn.RemoteAddr())
-		wg.Add(1)
+		wg.Add(wgCounter)
+		wgCounter++
 		go websockets.CaptureSocketEvents(&socket, &connections, &rooms)
 		wg.Wait()
 		defer wg.Done()
