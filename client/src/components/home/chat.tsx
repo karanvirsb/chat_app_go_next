@@ -46,7 +46,7 @@ export function Chat({
     const jsonMessage = lastJsonMessage as Message<any>;
 
     console.log(
-      `Last Json Message ${new Date().toLocaleDateString()}`,
+      `Last Json Message ${new Date().toLocaleDateString()} ${new Date().toTimeString()}`,
       jsonMessage
     );
     if (jsonMessage.room && jsonMessage.room !== room) {
