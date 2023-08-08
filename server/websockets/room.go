@@ -10,7 +10,7 @@ type Room struct {
 	Register   chan *Socket
 	Unregister chan *Socket
 	Sockets    map[*Socket]bool
-	Broadcast  chan *Message[any]
+	Broadcast  chan []byte
 }
 
 func NewRoom(name string) *Room {
@@ -19,7 +19,7 @@ func NewRoom(name string) *Room {
 		Register:   make(chan *Socket),
 		Unregister: make(chan *Socket),
 		Sockets:    make(map[*Socket]bool),
-		Broadcast:  make(chan *Message[any]),
+		Broadcast:  make(chan []byte),
 	}
 }
 
@@ -36,7 +36,7 @@ func (room *Room) RunRoom() {
 			}
 		case message := <-room.Broadcast:
 			for s := range room.Sockets {
-				s.Conn.WriteJSON(*message)
+				s.writeJSON(string(message))
 			}
 		}
 
