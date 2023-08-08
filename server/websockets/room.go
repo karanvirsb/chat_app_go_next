@@ -10,7 +10,7 @@ type Room struct {
 	Register   chan *Socket
 	Unregister chan *Socket
 	Sockets    map[*Socket]bool
-	Broadcast  chan *Message
+	Broadcast  chan *Message[any]
 }
 
 func NewRoom(name string) *Room {
@@ -19,7 +19,7 @@ func NewRoom(name string) *Room {
 		Register:   make(chan *Socket),
 		Unregister: make(chan *Socket),
 		Sockets:    make(map[*Socket]bool),
-		Broadcast:  make(chan *Message),
+		Broadcast:  make(chan *Message[any]),
 	}
 }
 
@@ -44,7 +44,7 @@ func (room *Room) RunRoom() {
 }
 
 func newUsernotification(room *Room, socket *Socket) {
-	message := Message{Data: socket.Username, EventName: "user_online"}
+	message := Message[string]{Data: socket.Username, EventName: "user_online"}
 	jsonMessage, err := json.Marshal(message)
 	if err != nil {
 		fmt.Printf("new user notification error: %v", err)
