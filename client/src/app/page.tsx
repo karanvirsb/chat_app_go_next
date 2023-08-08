@@ -23,6 +23,7 @@ export default function Home() {
 
   useEffect(() => {
     if (websocketHook.readyState !== 1) return;
+    if (!session || !session?.username || session.username.length < 3) return;
     rooms.forEach((room) => {
       websocketHook.sendJsonMessage({
         eventName: "join_room",
