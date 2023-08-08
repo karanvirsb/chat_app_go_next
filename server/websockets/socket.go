@@ -3,7 +3,7 @@ package websockets
 import "github.com/gorilla/websocket"
 
 type ISocket interface {
-	read(*interface{}) (Message, error)
+	read(*interface{}) (Message[any], error)
 }
 
 type Socket struct {
@@ -12,8 +12,8 @@ type Socket struct {
 	Conn     *websocket.Conn
 }
 
-func (s *Socket) read() (Message, error) {
-	jsonMessage := Message{}
+func (s *Socket) read() (Message[any], error) {
+	jsonMessage := Message[any]{}
 	err := s.Conn.ReadJSON(&jsonMessage)
 	return jsonMessage, err
 }
