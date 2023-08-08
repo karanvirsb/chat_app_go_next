@@ -11,12 +11,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import useSessionStorage from "@/hooks/useSessionStorage";
 
 export interface Message<T> {
   data?: T;
   room?: string;
   eventName?: string;
 }
+
+type UserSentMessage = {
+  text: string;
+  username: string;
+};
 
 export interface MessageHistory {
   [key: string]: Message<unknown>[];
@@ -27,6 +33,7 @@ export function Chat({
 }: {
   websocketHook: WebSocketHook<JsonValue | null, MessageEvent<any> | null>;
 }) {
+  const { storage: session } = useSessionStorage();
   const { lastJsonMessage, readyState, sendJsonMessage } = websocketHook;
   const [room, setRoom] = useState("1");
   const [messageHistory, setMessageHistory] = useState<MessageHistory>({});
@@ -79,7 +86,15 @@ export function Chat({
         </div> */}
       <section className="flex-grow bg-slate-400">
         {messageHistory[room]?.map((msg, index) => {
-          return <div key={index}>{JSON.stringify(msg)}</div>;
+          if (isMessage(msg)) {
+            return (
+              <div key={index}>
+                <div>
+                  <span>{msg?.data?.username}</span>
+                </div>
+              </div>
+            );
+          }
         })}
       </section>
       <div className="flex items-center gap-4">
@@ -91,10 +106,13 @@ export function Chat({
             if (message.current.value.length < 3)
               alert("Message needs to be at least 3 characters long!");
             sendJsonMessage({
-              data: message.current.value,
+              data: {
+                text: message.current.value,
+                username: session?.username as string,
+              },
               eventName: "send_message_to_room",
               room: room,
-            } satisfies Message<string>);
+            } satisfies Message<{ text: string; username: string }>);
             message.current.value = "";
           }}
         >
@@ -103,4 +121,12 @@ export function Chat({
       </div>
     </div>
   );
+  function isMessage(data: unknown): data is Message<UserSentMessage> {
+    const typedData = data as Message<UserSentMessage>;
+    return (
+      typedData.data !== undefined &&
+      typedData.data.text !== undefined &&
+      typedData.data.username !== undefined
+    );
+  }
 }
