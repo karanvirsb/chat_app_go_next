@@ -20,10 +20,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <time dateTime="2023-08-02" suppressHydrationWarning />
         <AuthContextProvider>{children}</AuthContextProvider>
+        <Toaster />
       </body>
-      <time dateTime="2023-08-02" suppressHydrationWarning />
-      <Toaster />
     </html>
   );
 }
