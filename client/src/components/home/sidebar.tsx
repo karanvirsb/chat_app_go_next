@@ -1,3 +1,4 @@
+"use client";
 import { rooms } from "@/app/page";
 import React, { useState } from "react";
 import { Button } from "../ui/button";
