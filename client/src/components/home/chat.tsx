@@ -99,28 +99,31 @@ export function Chat() {
           className="bg-hover"
           onKeyUp={(e) => {}}
         ></Textarea>
-        <Button
-          type="button"
-          onClick={() => {
-            if (!message.current) return;
-            if (message.current.value.length < 3)
-              alert("Message needs to be at least 3 characters long!");
-            sendJsonMessage({
-              data: {
-                text: message.current.value,
-                username: session?.username as string,
-              },
-              eventName: "send_message_to_room",
-              room: room,
-            } satisfies Message<{ text: string; username: string }>);
-            message.current.value = "";
-          }}
-        >
+        <Button type="button" onClick={() => {}}>
           Send Message
         </Button>
       </div>
     </div>
   );
+
+  function sendMessage() {
+    if (!message.current) {
+      return;
+    }
+    if (message.current.value.length < 3) {
+      alert("Message needs to be at least 3 characters long!");
+    }
+    sendJsonMessage({
+      data: {
+        text: message.current.value,
+        username: session?.username as string,
+      },
+      eventName: "send_message_to_room",
+      room: room,
+    } satisfies Message<{ text: string; username: string }>);
+    message.current.value = "";
+  }
+
   function isMessage(data: unknown): data is Message<UserSentMessage> {
     const typedData = data as Message<UserSentMessage>;
     return (
