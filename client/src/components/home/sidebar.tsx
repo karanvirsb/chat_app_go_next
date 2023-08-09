@@ -1,10 +1,13 @@
 "use client";
 import { rooms } from "@/app/page";
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "../ui/button";
+import { useChatStore } from "@/store/GoChatStore";
 
 export function Sidebar() {
-  const [activeRoom, setActiveRoom] = useState("1");
+  const activeRoom = useChatStore((state) => state.initialRoom);
+  const setActiveRoom = useChatStore((state) => state.setActiveRoom);
+
   return (
     <div className="px-2">
       <h1 className="text-[32px] font-semibold text-center">Go Chat</h1>
