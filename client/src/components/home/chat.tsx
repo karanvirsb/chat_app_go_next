@@ -75,15 +75,17 @@ export function Chat() {
   const { sendJsonMessage } = websocketHook.websocketHook;
 
   return (
-    <div className="h-full flex flex-col gap-4 py-2">
-      <section className="flex-grow bg-slate-400">
+    <div className="h-full max-h-screen flex flex-col gap-4 py-2">
+      <section className="flex-grow overflow-scroll p-2 outline outline-[1px] outline-gray-200 rounded-md">
         {messageHistory[room]?.map((msg, index) => {
           if (isMessage(msg)) {
             return (
-              <div key={index}>
-                <div>
-                  <span>{msg?.data?.username}</span>
-                  <span>{`${new Date().toLocaleDateString()} | ${new Date().toLocaleTimeString()}`}</span>
+              <div key={index} className="flex flex-col gap-4 my-8">
+                <div className="flex gap-6">
+                  <span className="text-brand-light-text">
+                    {msg?.data?.username}
+                  </span>
+                  <span className="text-brand-gray">{`${new Date().toLocaleDateString()} | ${new Date().toLocaleTimeString()}`}</span>
                 </div>
                 <p>{msg.data?.text}</p>
               </div>
@@ -92,7 +94,11 @@ export function Chat() {
         })}
       </section>
       <div className="flex items-center gap-4">
-        <Textarea ref={message}></Textarea>
+        <Textarea
+          ref={message}
+          className="bg-hover"
+          onKeyUp={(e) => {}}
+        ></Textarea>
         <Button
           type="button"
           onClick={() => {
