@@ -97,7 +97,11 @@ export function Chat() {
         <Textarea
           ref={message}
           className="bg-hover"
-          onKeyUp={(e) => {}}
+          onKeyUp={(e) => {
+            if (e.key === "Enter") {
+              sendMessage();
+            }
+          }}
         ></Textarea>
         <Button type="button" onClick={() => {}}>
           Send Message
