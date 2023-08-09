@@ -103,9 +103,6 @@ export function Chat() {
             }
           }}
         ></Textarea>
-        <Button type="button" onClick={() => {}}>
-          Send Message
-        </Button>
       </div>
     </div>
   );
