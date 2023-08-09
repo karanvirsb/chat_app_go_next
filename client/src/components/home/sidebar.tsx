@@ -17,7 +17,7 @@ export function Sidebar() {
             <Button
               key={room}
               variant="link"
-              className={activeRoom === room ? "bg-hover" : ""}
+              className={activeRoom === room ? "bg-hover" : "hover:bg-hover"}
               onClick={() => {
                 setActiveRoom(room);
               }}
