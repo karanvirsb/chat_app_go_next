@@ -81,13 +81,14 @@ export function Chat() {
       <section className="flex-grow overflow-scroll p-2 outline outline-[1px] outline-gray-200 rounded-md">
         {messageHistory[room]?.map((msg, index) => {
           if (isMessage(msg)) {
+            const date = new Date(msg?.data?.time ?? Date.now());
             return (
               <div key={index} className="flex flex-col gap-4 my-8">
                 <div className="flex gap-6">
                   <span className="text-brand-light-text">
                     {msg?.data?.username}
                   </span>
-                  <span className="text-brand-gray">{`${new Date().toLocaleDateString()} | ${new Date().toLocaleTimeString()}`}</span>
+                  <span className="text-brand-gray">{`${date.toLocaleDateString()} | ${date.toLocaleTimeString()}`}</span>
                 </div>
                 <p>{msg.data?.text}</p>
               </div>
