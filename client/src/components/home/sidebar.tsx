@@ -9,7 +9,7 @@ export function Sidebar() {
   const setActiveRoom = useChatStore((state) => state.setActiveRoom);
 
   return (
-    <div className="px-2">
+    <div className="px-2 bg-brand">
       <h1 className="text-[32px] font-semibold text-center">Go Chat</h1>
       <div className="flex flex-col gap-4 mt-4">
         {rooms.map((room) => {

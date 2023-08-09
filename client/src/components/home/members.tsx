@@ -25,7 +25,7 @@ export async function Members() {
   // listen to events on updating the members
 
   return (
-    <div className="px-2">
+    <div className="px-2 bg-brand">
       <h1 className="text-[26px] font-semibold text-center">Online Users</h1>
       {!users.success ? (
         <p>{typeof users.error === "string" && users.error}</p>
