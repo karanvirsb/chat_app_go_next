@@ -4,13 +4,6 @@ import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { useToast } from "../ui/use-toast";
 import { ToastClose } from "../ui/toast";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import useSessionStorage from "@/hooks/useSessionStorage";
 
 export interface Message<T> {
@@ -74,21 +67,9 @@ export function Chat({
       console.error(error);
     }
   }, [lastJsonMessage, readyState, room, toast]);
+
   return (
     <div className="h-full flex flex-col gap-4 py-2">
-      {/* <div className="flex">
-          <h1>Send Messages</h1>
-          <Select onValueChange={(val) => setRoom(val)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Rooms"></SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1">Room 1</SelectItem>
-              <SelectItem value="2">Room 2</SelectItem>
-              <SelectItem value="3">Room 3</SelectItem>
-            </SelectContent>
-          </Select>
-        </div> */}
       <section className="flex-grow bg-slate-400">
         {messageHistory[room]?.map((msg, index) => {
           if (isMessage(msg)) {
