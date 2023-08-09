@@ -18,6 +18,7 @@ export interface Message<T> {
 type UserSentMessage = {
   text: string;
   username: string;
+  time: number;
 };
 
 export interface MessageHistory {
@@ -38,6 +39,7 @@ export function Chat() {
     const { readyState, lastJsonMessage } = websocketHook.websocketHook;
     if (readyState !== 1) return;
     if (lastJsonMessage === null) return;
+
     try {
       const jsonMessage = JSON.parse(lastJsonMessage as any);
 
@@ -118,10 +120,11 @@ export function Chat() {
       data: {
         text: message.current.value,
         username: session?.username as string,
+        time: Date.now(),
       },
       eventName: "send_message_to_room",
       room: room,
-    } satisfies Message<{ text: string; username: string }>);
+    } satisfies Message<{ text: string; username: string; time: number }>);
     message.current.value = "";
   }
 
@@ -130,7 +133,8 @@ export function Chat() {
     return (
       typedData.data !== undefined &&
       typedData.data.text !== undefined &&
-      typedData.data.username !== undefined
+      typedData.data.username !== undefined &&
+      typedData.data.time !== undefined
     );
   }
 }
