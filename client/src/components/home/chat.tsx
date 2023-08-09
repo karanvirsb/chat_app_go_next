@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { useToast } from "../ui/use-toast";
 import { ToastClose } from "../ui/toast";
 import useSessionStorage from "@/hooks/useSessionStorage";
 import { useWebSocketContext } from "@/context/WebSocketContext";
+import { useChatStore } from "@/store/GoChatStore";
 
 export interface Message<T> {
   data?: T;
@@ -27,7 +27,8 @@ export interface MessageHistory {
 export function Chat() {
   const websocketHook = useWebSocketContext();
   const { storage: session } = useSessionStorage();
-  const [room, setRoom] = useState("1");
+  const room = useChatStore((state) => state.initialRoom);
+
   const [messageHistory, setMessageHistory] = useState<MessageHistory>({});
   const { toast } = useToast();
   const message = useRef<HTMLTextAreaElement | null>(null);
