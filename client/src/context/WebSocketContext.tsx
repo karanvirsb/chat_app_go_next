@@ -6,10 +6,11 @@ import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 import { useAuthContext } from "./AuthContext";
 import { Message } from "@/components/home/chat";
 
-const WebSocketContext = createContext<WebSocketHook<
-  JsonValue | null,
-  MessageEvent<any> | null
-> | null>(null);
+export interface IWebSocketContext {
+  websocketHook: WebSocketHook<JsonValue | null, MessageEvent<any> | null>;
+}
+
+const WebSocketContext = createContext<IWebSocketContext | null>(null);
 
 export function WebSocketContextProvider({
   children,
@@ -48,7 +49,7 @@ export function WebSocketContextProvider({
   }, []);
 
   return (
-    <WebSocketContext.Provider value={websocketHook}>
+    <WebSocketContext.Provider value={{ websocketHook }}>
       {children}
     </WebSocketContext.Provider>
   );
