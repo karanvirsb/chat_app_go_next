@@ -7,6 +7,7 @@ import { Textarea } from "../ui/textarea";
 import { useToast } from "../ui/use-toast";
 import { ToastClose } from "../ui/toast";
 import useSessionStorage from "@/hooks/useSessionStorage";
+import { useWebSocketContext } from "@/context/WebSocketContext";
 
 export interface Message<T> {
   data?: T;
@@ -23,19 +24,17 @@ export interface MessageHistory {
   [key: string]: Message<unknown>[];
 }
 
-export function Chat({
-  websocketHook,
-}: {
-  websocketHook: WebSocketHook<JsonValue | null, MessageEvent<any> | null>;
-}) {
+export function Chat() {
+  const websocketHook = useWebSocketContext();
   const { storage: session } = useSessionStorage();
-  const { lastJsonMessage, readyState, sendJsonMessage } = websocketHook;
   const [room, setRoom] = useState("1");
   const [messageHistory, setMessageHistory] = useState<MessageHistory>({});
   const { toast } = useToast();
   const message = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
+    if (websocketHook === null) return;
+    const { readyState, lastJsonMessage } = websocketHook.websocketHook;
     if (readyState !== 1) return;
     if (lastJsonMessage === null) return;
     try {
@@ -68,7 +67,11 @@ export function Chat({
     } catch (error) {
       console.error(error);
     }
-  }, [lastJsonMessage, readyState, room, toast]);
+  }, [websocketHook, room, toast]);
+
+  if (websocketHook === null) return <div>Loading...</div>;
+
+  const { sendJsonMessage } = websocketHook.websocketHook;
 
   return (
     <div className="h-full flex flex-col gap-4 py-2">
