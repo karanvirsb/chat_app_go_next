@@ -17,6 +17,10 @@ module.exports = {
     },
     extend: {
       colors: {
+        "brand-white": "hsla(0,0%,100%,0.98)",
+        "brand-black": "hsla(0,0%,0%,0.85)",
+        "brand-light-text": "hsla(0,0%,0%,0.65)",
+        "brand-gray": "hsla(0,0%,0%,0.55)",
         brand: "#C7E1F1",
         hover: "hsla(194, 20%, 62%, 0.75)",
         border: "hsl(var(--border))",
