@@ -72,9 +72,11 @@ func main() {
 		wgCounter++
 		go websockets.CaptureSocketEvents(&socket, &connections, &rooms)
 		wg.Wait()
-		defer wg.Done()
+		defer func() {
+			wg.Done()
+			fmt.Println("****Connection closed***")
+		}()
 
-		fmt.Println("Connection closed")
 	})
 	router.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
 		users := make([]User, len(connections.Conns))
