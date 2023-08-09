@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import React from "react";
 
 type Users = Array<{ username: string; id: string }>;
@@ -10,7 +11,9 @@ type ReturnData<T> =
   | { success: false; error: unknown };
 
 async function getUsers(): Promise<ReturnData<Users>> {
-  const res = await fetch("http://localhost:8000/users");
+  const res = await fetch("http://localhost:8000/users", {
+    next: { revalidate: 60 },
+  });
 
   if (!res.ok) {
     return { success: false, error: "Failed to fetch users" };
