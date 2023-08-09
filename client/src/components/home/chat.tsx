@@ -43,31 +43,36 @@ export function Chat({
   useEffect(() => {
     if (readyState !== 1) return;
     if (lastJsonMessage === null) return;
-    const jsonMessage = lastJsonMessage as Message<any>;
+    try {
+      const jsonMessage = JSON.parse(lastJsonMessage as any);
 
-    console.log(
-      `Last Json Message ${new Date().toLocaleDateString()} ${new Date().toTimeString()}`,
-      jsonMessage
-    );
-    if (jsonMessage.room && jsonMessage.room !== room) {
-      // set notification for that room
-      toast({
-        title: "You got a message!",
-        duration: 30000,
-        action: <ToastClose />,
-        description: `You got a message from room {${jsonMessage.room}}`,
+      console.log(
+        `Last Json Message ${new Date().toLocaleDateString()} ${new Date().toTimeString()}`,
+        jsonMessage,
+        typeof jsonMessage
+      );
+      if (jsonMessage.room && jsonMessage.room !== room) {
+        // set notification for that room
+        toast({
+          title: "You got a message!",
+          duration: 30000,
+          action: <ToastClose />,
+          description: `You got a message from room {${jsonMessage.room}}`,
+        });
+      }
+      if (!jsonMessage?.room?.includes(room)) return;
+      // type guard
+      setMessageHistory((prev) => {
+        let prevRoom = prev[room] ?? [];
+        prevRoom.push(jsonMessage as Message<any>);
+        return {
+          ...prev,
+          [room]: prevRoom,
+        };
       });
+    } catch (error) {
+      console.error(error);
     }
-    if (!jsonMessage?.room?.includes(room)) return;
-
-    setMessageHistory((prev) => {
-      let prevRoom = prev[room] ?? [];
-      prevRoom.push(lastJsonMessage as Message<any>);
-      return {
-        ...prev,
-        [room]: prevRoom,
-      };
-    });
   }, [lastJsonMessage, readyState, room, toast]);
   return (
     <div className="h-full flex flex-col gap-4 py-2">
@@ -91,7 +96,9 @@ export function Chat({
               <div key={index}>
                 <div>
                   <span>{msg?.data?.username}</span>
+                  <span>{`${new Date().toLocaleDateString()} | ${new Date().toLocaleTimeString()}`}</span>
                 </div>
+                <p>{msg.data?.text}</p>
               </div>
             );
           }
