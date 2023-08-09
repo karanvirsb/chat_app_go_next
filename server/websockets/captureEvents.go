@@ -24,9 +24,9 @@ var (
 	buf    bytes.Buffer
 	logger = log.New(&buf, "capture socket events logger: ", log.Default().Flags())
 )
-var count int = 0
 
 func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[string]Room) {
+	defer Connections.RemoveConnection(socket)
 	buf.Grow(30000)
 	// wg := sync.WaitGroup{}
 	for {
@@ -48,7 +48,6 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		go printBuffer()
 		switch jsonMessage.EventName {
 		case "join_room":
-			count++
 			// wg.Add(count)
 			go joinRoomEvent(socket, rooms, &msg)
 		case "send_message_to_room":
