@@ -78,7 +78,7 @@ export function Chat() {
 
   return (
     <div className="h-full max-h-screen flex flex-col gap-4 py-2">
-      <section className="flex-grow overflow-scroll p-2 outline outline-[1px] outline-gray-200 rounded-md">
+      <section className="flex-grow overflow-y-auto p-2 outline outline-[1px] outline-gray-200 rounded-md">
         {messageHistory[room]?.map((msg, index) => {
           if (isMessage(msg)) {
             const date = new Date(msg?.data?.time ?? Date.now());
@@ -114,8 +114,10 @@ export function Chat() {
     if (!message.current) {
       return;
     }
+
     if (message.current.value.length < 3) {
       alert("Message needs to be at least 3 characters long!");
+      return;
     }
     sendJsonMessage({
       data: {
