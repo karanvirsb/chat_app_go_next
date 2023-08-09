@@ -2,6 +2,7 @@ package main
 
 import (
 	"chat_app_server/websockets"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sync"
@@ -39,6 +40,11 @@ var connections = websockets.Connections{
 
 var rooms = map[string]websockets.Room{}
 
+type User struct {
+	Username string `json:"username"`
+	Id       string `json:"id"`
+}
+
 func main() {
 
 	router := mux.NewRouter()
@@ -69,6 +75,19 @@ func main() {
 		defer wg.Done()
 
 		fmt.Println("Connection closed")
+	})
+	router.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
+		users := make([]User, len(connections.Conns))
+		for i, conn := range connections.Conns {
+			if len(conn.Username) == 0 {
+				continue
+			}
+			users[i] = User{Username: conn.Username, Id: conn.Id}
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(users)
 	})
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Server request")
