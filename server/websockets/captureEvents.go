@@ -17,7 +17,8 @@ type Message[T any] struct {
 }
 
 type MessageJoinRoom struct {
-	Username string `json:"username,omitempty"`
+	Username string   `json:"username,omitempty"`
+	Rooms    []string `json:"rooms,omitempty"`
 }
 
 var (
