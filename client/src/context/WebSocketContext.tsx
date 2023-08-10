@@ -44,13 +44,6 @@ export function WebSocketContextProvider({
 
   useEffect(() => {
     if (!session || !session?.username || session.username.length < 3) return;
-    // rooms.forEach((room) => {
-    //   websocketHook?.sendJsonMessage({
-    //     eventName: "join_room",
-    //     data: { username: session?.username },
-    //     room,
-    //   } satisfies Message<any>);
-    // });
 
     websocketHook.sendJsonMessage({
       eventName: "join_room",
