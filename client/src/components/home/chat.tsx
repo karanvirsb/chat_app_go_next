@@ -29,48 +29,32 @@ export function Chat() {
   const websocketHook = useWebSocketContext();
   const { storage: session } = useSessionStorage();
   const room = useChatStore((state) => state.initialRoom);
-
   const [messageHistory, setMessageHistory] = useState<MessageHistory>({});
+
   const { toast } = useToast();
   const message = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     if (websocketHook === null) return;
-    const { readyState, lastJsonMessage } = websocketHook.websocketHook;
-    if (readyState !== 1) return;
-    if (lastJsonMessage === null) return;
 
-    try {
-      const jsonMessage = JSON.parse(lastJsonMessage as any);
-
-      console.log(
-        `Last Json Message ${new Date().toLocaleDateString()} ${new Date().toTimeString()}`,
-        jsonMessage,
-        typeof jsonMessage
-      );
-      if (jsonMessage.room && jsonMessage.room !== room) {
-        // set notification for that room
-        toast({
-          title: "You got a message!",
-          duration: 30000,
-          action: <ToastClose />,
-          description: `You got a message from room {${jsonMessage.room}}`,
+    const { getWebSocket } = websocketHook?.websocketHook;
+    const websocket = getWebSocket();
+    if (websocket === null) return;
+    if (websocket.OPEN) {
+      websocket.addEventListener("message", (e) => {
+        const jsonMessage = JSON.parse(JSON.parse((e as any).data));
+        // add type guard
+        setMessageHistory((prev) => {
+          let prevRoom = prev[jsonMessage.room] ?? [];
+          prevRoom.push(jsonMessage as Message<any>);
+          return {
+            ...prev,
+            [jsonMessage.room]: prevRoom,
+          };
         });
-      }
-      if (!jsonMessage?.room?.includes(room)) return;
-      // type guard
-      setMessageHistory((prev) => {
-        let prevRoom = prev[room] ?? [];
-        prevRoom.push(jsonMessage as Message<any>);
-        return {
-          ...prev,
-          [room]: prevRoom,
-        };
       });
-    } catch (error) {
-      console.error(error);
     }
-  }, [websocketHook, room, toast]);
+  }, [websocketHook?.websocketHook.getWebSocket()]);
 
   if (websocketHook === null) return <div>Loading...</div>;
 
