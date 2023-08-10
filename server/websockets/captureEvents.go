@@ -97,32 +97,34 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte) {
 		}
 
 	}
-	logger.Printf("Join room case: %v\n", msg.Room)
+
+	logger.Printf("Join rooms case: %v\n", msg.Data.Rooms)
 
 	socket.Username = msg.Data.Username
 	// add room to socket and add socket to rooms map
-	logger.Printf("Does Room %v Exist: %v\n", msg.Room, DoesRoomExist(rooms, msg.Room))
-	if foundRoom := DoesRoomExist(rooms, msg.Room); foundRoom != nil {
-		logger.Printf("Found room: %v\n", msg.Room)
-		wg.Add(1)
-		foundRoom.Register <- socket
-		// go foundRoom.RunRoom()
-		defer func() { foundRoom.Unregister <- socket }()
-	} else {
-		logger.Printf("New room: %v\n", msg.Room)
-		newRoom := NewRoom(msg.Room)
-		wg.Add(1)
-		(*rooms)[msg.Room] = *newRoom
+	wg.Add(len(msg.Data.Rooms))
+	for _, room := range msg.Data.Rooms {
 
-		go newRoom.RunRoom()
-		newRoom.Register <- socket
-		defer func() { newRoom.Unregister <- socket }()
+		logger.Printf("Does Room %v Exist: %v\n", room, DoesRoomExist(rooms, room))
+		if foundRoom := DoesRoomExist(rooms, room); foundRoom != nil {
+			logger.Printf("Found room: %v\n", room)
+			foundRoom.Register <- socket
+			defer func() { foundRoom.Unregister <- socket }()
+
+		} else {
+			logger.Printf("New room: %v\n", room)
+			newRoom := NewRoom(room)
+			(*rooms)[room] = *newRoom
+			go newRoom.RunRoom()
+			newRoom.Register <- socket
+			defer func() { newRoom.Unregister <- socket }()
+		}
 	}
 	wg.Wait()
 
 	defer func() {
 		wg.Done()
-		logger.Printf("Ended join room: %v", msg.Room)
+		logger.Printf("Ended join rooms for socket %v", socket.Username)
 	}()
 
 }
