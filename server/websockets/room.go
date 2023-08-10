@@ -44,7 +44,7 @@ func (room *Room) RunRoom() {
 }
 
 func newUsernotification(room *Room, socket *Socket) {
-	message := Message[string]{Data: socket.Username, EventName: "user_online"}
+	message := Message[User]{Data: User{Username: socket.Username, Id: socket.Id}, EventName: "user_online"}
 	jsonMessage, err := json.Marshal(message)
 	if err != nil {
 		fmt.Printf("new user notification error: %v", err)
