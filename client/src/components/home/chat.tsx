@@ -1,10 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { useToast } from "../ui/use-toast";
-import { ToastClose } from "../ui/toast";
 import useSessionStorage from "@/hooks/useSessionStorage";
 import { useWebSocketContext } from "@/context/WebSocketContext";
 import { useChatStore } from "@/store/GoChatStore";
@@ -31,7 +29,6 @@ export function Chat() {
   const room = useChatStore((state) => state.initialRoom);
   const [messageHistory, setMessageHistory] = useState<MessageHistory>({});
 
-  const { toast } = useToast();
   const message = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
@@ -43,15 +40,18 @@ export function Chat() {
     if (websocket.OPEN) {
       websocket.addEventListener("message", (e) => {
         const jsonMessage = JSON.parse(JSON.parse((e as any).data));
+        console.log(jsonMessage);
         // add type guard
-        setMessageHistory((prev) => {
-          let prevRoom = prev[jsonMessage.room] ?? [];
-          prevRoom.push(jsonMessage as Message<any>);
-          return {
-            ...prev,
-            [jsonMessage.room]: prevRoom,
-          };
-        });
+        if (jsonMessage.eventName === "send_message_to_room") {
+          setMessageHistory((prev) => {
+            let prevRoom = prev[jsonMessage.room] ?? [];
+            prevRoom.push(jsonMessage as Message<any>);
+            return {
+              ...prev,
+              [jsonMessage.room]: prevRoom,
+            };
+          });
+        }
       });
     }
   }, [websocketHook?.websocketHook.getWebSocket()]);
