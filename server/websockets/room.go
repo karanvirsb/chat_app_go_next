@@ -51,6 +51,6 @@ func newUsernotification(room *Room, socket *Socket) {
 		return
 	}
 	for s := range room.Sockets {
-		s.writeJSON(jsonMessage)
+		s.writeJSON(string(jsonMessage))
 	}
 }
