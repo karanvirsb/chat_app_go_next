@@ -33,6 +33,7 @@ func (room *Room) RunRoom() {
 			_, ok := room.Sockets[socket]
 			if ok {
 				delete(room.Sockets, socket)
+				userLeftNotification(room, socket)
 			}
 		case message := <-room.Broadcast:
 			for s := range room.Sockets {
