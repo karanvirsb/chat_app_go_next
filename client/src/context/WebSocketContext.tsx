@@ -12,6 +12,11 @@ export interface IWebSocketContext {
 
 const WebSocketContext = createContext<IWebSocketContext | null>(null);
 
+export interface JoinRoom {
+  username: string;
+  rooms: string[];
+}
+
 export function WebSocketContextProvider({
   children,
 }: {
@@ -39,14 +44,19 @@ export function WebSocketContextProvider({
 
   useEffect(() => {
     if (!session || !session?.username || session.username.length < 3) return;
-    rooms.forEach((room) => {
-      websocketHook?.sendJsonMessage({
-        eventName: "join_room",
-        data: { username: session?.username },
-        room,
-      } satisfies Message<any>);
-    });
-  }, []);
+    // rooms.forEach((room) => {
+    //   websocketHook?.sendJsonMessage({
+    //     eventName: "join_room",
+    //     data: { username: session?.username },
+    //     room,
+    //   } satisfies Message<any>);
+    // });
+
+    websocketHook.sendJsonMessage({
+      eventName: "join_room",
+      data: { username: session.username, rooms },
+    } satisfies Message<JoinRoom>);
+  }, [session, websocketHook]);
 
   return (
     <WebSocketContext.Provider value={{ websocketHook }}>
