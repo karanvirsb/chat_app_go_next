@@ -60,6 +60,15 @@ export function Chat() {
               [jsonMessage.room]: prevRoom,
             };
           });
+        } else if (jsonMessage.eventName === "user_left") {
+          setMessageHistory((prev) => {
+            let prevRoom = prev[jsonMessage.room] ?? [];
+            prevRoom.push(`User ${jsonMessage.data.username} has left.`);
+            return {
+              ...prev,
+              [jsonMessage.room]: prevRoom,
+            };
+          });
         }
       });
     }
