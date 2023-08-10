@@ -41,6 +41,20 @@ export function Members() {
 
       if (jsonMessage.eventName === "connected_users") {
         setUsers(jsonMessage.data.users);
+      } else if (jsonMessage.eventName === "user_disconnected") {
+        setUsers((prev) => {
+          const newUsers = prev.filter(
+            (user) => user.id !== jsonMessage.data.id
+          );
+          return newUsers;
+        });
+      } else if (jsonMessage.eventName === "user_connected") {
+        setUsers((prev) => {
+          return [
+            ...prev,
+            { id: jsonMessage.data.id, username: jsonMessage.data.username },
+          ];
+        });
       }
     });
   }, [websocketHook?.websocketHook.getWebSocket()]);
