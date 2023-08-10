@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var allowedOrigins []string = []string{"http://localhost:3000"}
+var allowedOrigins []string = []string{"http://localhost:3000", "*"}
 
 var upgrader = websocket.Upgrader{
 	EnableCompression: true,
@@ -22,6 +22,10 @@ var upgrader = websocket.Upgrader{
 
 		for _, o := range allowedOrigins {
 			if o == origin {
+				found = true
+				break
+			}
+			if o == "*" {
 				found = true
 				break
 			}
