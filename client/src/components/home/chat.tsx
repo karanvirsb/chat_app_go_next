@@ -20,7 +20,7 @@ type UserSentMessage = {
 };
 
 export interface MessageHistory {
-  [key: string]: Message<unknown>[];
+  [key: string]: Array<Message<unknown> | string>;
 }
 
 export function Chat() {
@@ -46,6 +46,15 @@ export function Chat() {
           setMessageHistory((prev) => {
             let prevRoom = prev[jsonMessage.room] ?? [];
             prevRoom.push(jsonMessage as Message<any>);
+            return {
+              ...prev,
+              [jsonMessage.room]: prevRoom,
+            };
+          });
+        } else if (jsonMessage.eventName === "user_online") {
+          setMessageHistory((prev) => {
+            let prevRoom = prev[jsonMessage.room] ?? [];
+            prevRoom.push(`User ${jsonMessage.data.username} has joined.`);
             return {
               ...prev,
               [jsonMessage.room]: prevRoom,
@@ -77,6 +86,8 @@ export function Chat() {
                 <p>{msg.data?.text}</p>
               </div>
             );
+          } else if (typeof msg === "string") {
+            return <div key={`msg-${index}-${room}`}>{msg}</div>;
           }
         })}
       </section>
