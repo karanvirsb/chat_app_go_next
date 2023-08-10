@@ -56,7 +56,7 @@ export function WebSocketContextProvider({
       eventName: "join_room",
       data: { username: session.username, rooms },
     } satisfies Message<JoinRoom>);
-  }, [session, websocketHook]);
+  }, []);
 
   return (
     <WebSocketContext.Provider value={{ websocketHook }}>
