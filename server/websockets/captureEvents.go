@@ -55,7 +55,11 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			// wg.Add(count)
 			message := make(chan *Socket)
 			go joinRoomEvent(socket, rooms, &msg, message)
-			go Connections.NotifyUsersOfConnectedUser(<-message)
+			socket := <-message
+			go Connections.NotifyUsersOfConnectedUser(socket)
+			users := GetUsers(socket, Connections)
+			socket.writeJSON(users)
+
 		case "send_message_to_room":
 			if room, ok := (*rooms)[jsonMessage.Room]; ok {
 				room.Broadcast <- msg
@@ -134,4 +138,22 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out 
 		logger.Printf("Ended join rooms for socket %v", socket.Username)
 	}()
 
+}
+
+type User struct {
+	Username string `json:"username"`
+	Id       string `json:"id"`
+}
+
+func GetUsers(s *Socket, connections *Connections) []User {
+	users := make([]User, len(connections.Conns))
+
+	for _, socket := range connections.Conns {
+		if s.Id == socket.Id {
+			continue
+		}
+		users = append(users, User{Id: socket.Id, Username: socket.Username})
+	}
+
+	return users
 }
