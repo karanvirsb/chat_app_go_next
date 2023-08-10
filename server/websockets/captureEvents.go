@@ -27,7 +27,10 @@ var (
 )
 
 func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[string]Room) {
-	defer Connections.RemoveConnection(socket)
+	defer func() {
+		Connections.RemoveConnection(socket)
+		Connections.NotifyUsersOfLeave(socket)
+	}()
 	buf.Grow(30000)
 	// wg := sync.WaitGroup{}
 	for {
