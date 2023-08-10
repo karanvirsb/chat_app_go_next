@@ -15,6 +15,7 @@ import (
 var allowedOrigins []string = []string{"http://localhost:3000"}
 
 var upgrader = websocket.Upgrader{
+	EnableCompression: true,
 	CheckOrigin: func(r *http.Request) bool {
 		found := false
 		origin := r.Header.Get("Origin")
