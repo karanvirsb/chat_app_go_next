@@ -21,6 +21,10 @@ type MessageJoinRoom struct {
 	Rooms    []string `json:"rooms,omitempty"`
 }
 
+type MessageConnectedUsers struct {
+	Users []User `json:"users,omitempty"`
+}
+
 var (
 	buf    bytes.Buffer
 	logger = log.New(&buf, "capture socket events logger: ", log.Default().Flags())
@@ -58,7 +62,11 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			socket := <-message
 			go Connections.NotifyUsersOfConnectedUser(socket)
 			users := GetUsers(socket, Connections)
-			socket.writeJSON(users)
+			msg, err := json.Marshal(Message[MessageConnectedUsers]{EventName: "connected_users", Data: MessageConnectedUsers{Users: users}})
+			if err != nil {
+				logger.Printf("connected users error: %v", err)
+			}
+			socket.writeJSON(string(msg))
 
 		case "send_message_to_room":
 			if room, ok := (*rooms)[jsonMessage.Room]; ok {
