@@ -53,7 +53,9 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		switch jsonMessage.EventName {
 		case "join_room":
 			// wg.Add(count)
-			go joinRoomEvent(socket, rooms, &msg)
+			message := make(chan *Socket)
+			go joinRoomEvent(socket, rooms, &msg, message)
+			go Connections.NotifyUsersOfConnectedUser(<-message)
 		case "send_message_to_room":
 			if room, ok := (*rooms)[jsonMessage.Room]; ok {
 				room.Broadcast <- msg
@@ -87,7 +89,7 @@ func DoesRoomExist(rooms *map[string]Room, roomName string) *Room {
 	return &r
 }
 
-func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte) {
+func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out chan *Socket) {
 	wg := sync.WaitGroup{}
 	msg := Message[MessageJoinRoom]{}
 	err := json.Unmarshal(*message, &msg)
@@ -104,6 +106,8 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte) {
 	logger.Printf("Join rooms case: %v\n", msg.Data.Rooms)
 
 	socket.Username = msg.Data.Username
+	out <- socket
+	close(out)
 	// add room to socket and add socket to rooms map
 	wg.Add(len(msg.Data.Rooms))
 	for _, room := range msg.Data.Rooms {
