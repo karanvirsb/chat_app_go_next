@@ -54,3 +54,14 @@ func newUsernotification(room *Room, socket *Socket) {
 		s.writeJSON(string(jsonMessage))
 	}
 }
+func userLeftNotification(room *Room, socket *Socket) {
+	message := Message[User]{Data: User{Username: socket.Username, Id: socket.Id}, EventName: "user_left"}
+	jsonMessage, err := json.Marshal(message)
+	if err != nil {
+		fmt.Printf("left user notification error: %v", err)
+		return
+	}
+	for s := range room.Sockets {
+		s.writeJSON(string(jsonMessage))
+	}
+}
