@@ -105,8 +105,8 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte) {
 	if foundRoom := DoesRoomExist(rooms, msg.Room); foundRoom != nil {
 		logger.Printf("Found room: %v\n", msg.Room)
 		wg.Add(1)
-		go foundRoom.RunRoom()
 		foundRoom.Register <- socket
+		// go foundRoom.RunRoom()
 		defer func() { foundRoom.Unregister <- socket }()
 	} else {
 		logger.Printf("New room: %v\n", msg.Room)
