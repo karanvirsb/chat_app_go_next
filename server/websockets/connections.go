@@ -48,3 +48,21 @@ func (c *Connections) NotifyUsersOfLeave(s *Socket) {
 		s.writeJSON(string(leftMessage))
 	}
 }
+
+type UserConnectedMessage struct {
+	Username string `json:"username"`
+	Id       string `json:"id"`
+}
+
+func (c *Connections) NotifyUsersOfConnectedUser(s *Socket) {
+	c.Mu.Lock()
+	defer c.Mu.Unlock()
+	joinMessage, err := json.Marshal(Message[UserConnectedMessage]{Data: UserConnectedMessage{Id: s.Id, Username: s.Username}, EventName: "user_connected"})
+	if err != nil {
+		fmt.Printf("User Connected Message Error: %v", err)
+		return
+	}
+	for _, s := range c.Conns {
+		s.writeJSON(string(joinMessage))
+	}
+}
