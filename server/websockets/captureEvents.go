@@ -157,7 +157,7 @@ func GetUsers(s *Socket, connections *Connections) []User {
 	users := make([]User, len(connections.Conns))
 
 	for _, socket := range connections.Conns {
-		if s.Id == socket.Id {
+		if len(socket.Id) == 0 {
 			continue
 		}
 		users = append(users, User{Id: socket.Id, Username: socket.Username})
