@@ -10,7 +10,16 @@ export interface IWebSocketContext {
   websocketHook: WebSocketHook<JsonValue | null, MessageEvent<any> | null>;
 }
 
-const WebSocketContext = createContext<IWebSocketContext | null>(null);
+const WebSocketContext = createContext<IWebSocketContext>({
+  websocketHook: {
+    getWebSocket: () => null,
+    lastJsonMessage: null,
+    lastMessage: null,
+    readyState: -1,
+    sendJsonMessage: () => null,
+    sendMessage: () => null,
+  },
+});
 
 export interface JoinRoom {
   username: string;
