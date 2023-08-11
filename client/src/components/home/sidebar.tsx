@@ -17,7 +17,12 @@ export function Sidebar() {
             <Button
               key={room.name}
               variant="link"
-              className={room.visible ? "bg-hover" : "hover:bg-hover"}
+              className={` relative ${
+                room.visible ? "bg-hover" : "hover:bg-hover"
+              } ${
+                room.notifications &&
+                "after:block after:w-4 after:h-4 after:absolute after:-top-1 after:-right-1 after:bg-red-400 after:rounded-full outline outline-1 outline-gray-400"
+              }`}
               onClick={() => {
                 setActiveRoom(room.name);
               }}
