@@ -57,7 +57,7 @@ export function WebSocketContextProvider({
     websocketHook.sendJsonMessage({
       eventName: "join_room",
       data: { username: session.username, rooms },
-    } satisfies Message<JoinRoom>);
+    } satisfies Message);
   }, [websocketHook.sendJsonMessage, session]);
 
   return (
