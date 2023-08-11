@@ -13,6 +13,7 @@ export interface Room {
 export interface IRoomSlice {
   rooms: Room[];
   setActiveRoom: (room: string) => void;
+  setNotification: (room: string, shouldNotify: boolean) => void;
 }
 
 export const createRoomSlice: StateCreator<IRoomSlice, [], [], IRoomSlice> = (
@@ -32,5 +33,11 @@ export const createRoomSlice: StateCreator<IRoomSlice, [], [], IRoomSlice> = (
           return { ...r, visible: false };
         }
       }),
+    })),
+  setNotification: (room, shouldNotify) =>
+    set((state) => ({
+      rooms: state.rooms.map((r) =>
+        r.name === room ? { ...r, notifications: shouldNotify } : r
+      ),
     })),
 });
