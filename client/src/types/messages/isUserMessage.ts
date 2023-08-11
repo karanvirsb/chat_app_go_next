@@ -1,3 +1,5 @@
+import { Message } from "./messageTypes";
+
 export type UserSentMessage = {
   text: string;
   username: string;

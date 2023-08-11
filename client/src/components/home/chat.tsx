@@ -8,6 +8,7 @@ import { useWebSocketContext } from "@/context/WebSocketContext";
 import { useChatStore } from "@/store/GoChatStore";
 import { Room } from "@/store/room/RoomStore";
 import { isMessage } from "@/types/messages/isMessage";
+import { Message } from "@/types/messages/messageTypes";
 
 export interface MessageHistory {
   [key: string]: Array<Message<unknown> | string>;

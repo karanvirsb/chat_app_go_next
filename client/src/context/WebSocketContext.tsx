@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useRef } from "react";
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 import { useAuthContext } from "./AuthContext";
+import { Message } from "@/types/messages/messageTypes";
 
 export interface IWebSocketContext {
   websocketHook: WebSocketHook<JsonValue | null, MessageEvent<any> | null>;

@@ -1,3 +1,5 @@
+import { Message } from "./messageTypes";
+
 export function isMessage<T>(data: unknown): data is Message<T> {
   const d = data as Message<T>;
   return (
