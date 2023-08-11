@@ -2,23 +2,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Textarea } from "../ui/textarea";
-import { useToast } from "../ui/use-toast";
+import { isUserMessage } from "@/types/messages/isUserMessage";
 import useSessionStorage from "@/hooks/useSessionStorage";
 import { useWebSocketContext } from "@/context/WebSocketContext";
 import { useChatStore } from "@/store/GoChatStore";
 import { Room } from "@/store/room/RoomStore";
-
-export interface Message<T> {
-  data?: T;
-  room?: string;
-  eventName?: string;
-}
-
-type UserSentMessage = {
-  text: string;
-  username: string;
-  time: number;
-};
 
 export interface MessageHistory {
   [key: string]: Array<Message<unknown> | string>;
@@ -94,7 +82,7 @@ export function Chat() {
     <div className="h-full max-h-screen flex flex-col gap-4 py-2">
       <section className="flex-grow overflow-y-auto p-2 outline outline-[1px] outline-gray-200 rounded-md">
         {messageHistory[room.name]?.map((msg, index) => {
-          if (isMessage(msg)) {
+          if (isUserMessage(msg)) {
             const date = new Date(msg?.data?.time ?? Date.now());
             return (
               <div key={index} className="flex flex-col gap-4 my-8">
@@ -145,15 +133,5 @@ export function Chat() {
       room: room.name,
     } satisfies Message<{ text: string; username: string; time: number }>);
     message.current.value = "";
-  }
-
-  function isMessage(data: unknown): data is Message<UserSentMessage> {
-    const typedData = data as Message<UserSentMessage>;
-    return (
-      typedData.data !== undefined &&
-      typedData.data.text !== undefined &&
-      typedData.data.username !== undefined &&
-      typedData.data.time !== undefined
-    );
   }
 }
