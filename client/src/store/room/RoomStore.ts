@@ -25,9 +25,12 @@ export const createRoomSlice: StateCreator<IRoomSlice, [], [], IRoomSlice> = (
   ],
   setActiveRoom: (room) =>
     set((state) => ({
-      rooms: [
-        ...state.rooms,
-        { name: room, visible: true, notifications: false },
-      ],
+      rooms: state.rooms.map((r) => {
+        if (r.name === room) {
+          return { ...r, visible: true };
+        } else {
+          return { ...r, visible: false };
+        }
+      }),
     })),
 });
