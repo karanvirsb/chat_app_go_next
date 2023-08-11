@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 import { useChatStore } from "@/store/GoChatStore";
 
 export function Sidebar() {
-  const activeRoom = useChatStore((state) => state.initialRoom);
+  const rooms = useChatStore((state) => state.rooms);
   const setActiveRoom = useChatStore((state) => state.setActiveRoom);
 
   return (
@@ -15,14 +15,14 @@ export function Sidebar() {
         {rooms.map((room) => {
           return (
             <Button
-              key={room}
+              key={room.name}
               variant="link"
-              className={activeRoom === room ? "bg-hover" : "hover:bg-hover"}
+              className={room.visible ? "bg-hover" : "hover:bg-hover"}
               onClick={() => {
-                setActiveRoom(room);
+                setActiveRoom(room.name);
               }}
             >
-              Room {room}
+              Room {room.name}
             </Button>
           );
         })}

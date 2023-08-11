@@ -6,6 +6,7 @@ import { useToast } from "../ui/use-toast";
 import useSessionStorage from "@/hooks/useSessionStorage";
 import { useWebSocketContext } from "@/context/WebSocketContext";
 import { useChatStore } from "@/store/GoChatStore";
+import { Room } from "@/store/room/RoomStore";
 
 export interface Message<T> {
   data?: T;
@@ -26,7 +27,9 @@ export interface MessageHistory {
 export function Chat() {
   const { websocketHook } = useWebSocketContext();
   const { storage: session } = useSessionStorage();
-  const room = useChatStore((state) => state.initialRoom);
+  const room = useChatStore((state) =>
+    state.rooms.find((r) => r.visible)
+  ) as Room;
   const [messageHistory, setMessageHistory] = useState<MessageHistory>({});
 
   const message = useRef<HTMLTextAreaElement | null>(null);
@@ -84,7 +87,7 @@ export function Chat() {
   return (
     <div className="h-full max-h-screen flex flex-col gap-4 py-2">
       <section className="flex-grow overflow-y-auto p-2 outline outline-[1px] outline-gray-200 rounded-md">
-        {messageHistory[room]?.map((msg, index) => {
+        {messageHistory[room.name]?.map((msg, index) => {
           if (isMessage(msg)) {
             const date = new Date(msg?.data?.time ?? Date.now());
             return (
@@ -133,7 +136,7 @@ export function Chat() {
         time: Date.now(),
       },
       eventName: "send_message_to_room",
-      room: room,
+      room: room.name,
     } satisfies Message<{ text: string; username: string; time: number }>);
     message.current.value = "";
   }
