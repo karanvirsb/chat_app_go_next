@@ -24,7 +24,7 @@ export interface MessageHistory {
 }
 
 export function Chat() {
-  const websocketHook = useWebSocketContext();
+  const { websocketHook } = useWebSocketContext();
   const { storage: session } = useSessionStorage();
   const room = useChatStore((state) => state.initialRoom);
   const [messageHistory, setMessageHistory] = useState<MessageHistory>({});
@@ -32,9 +32,7 @@ export function Chat() {
   const message = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
-    if (websocketHook === null) return;
-
-    const { getWebSocket } = websocketHook?.websocketHook;
+    const { getWebSocket } = websocketHook;
     const websocket = getWebSocket();
     if (websocket === null) return;
 
@@ -77,11 +75,11 @@ export function Chat() {
     return () => {
       websocket.removeEventListener("message", listener);
     };
-  }, [websocketHook?.websocketHook.getWebSocket()]);
+  }, [websocketHook.getWebSocket()]);
 
   if (websocketHook === null) return <div>Loading...</div>;
 
-  const { sendJsonMessage } = websocketHook.websocketHook;
+  const { sendJsonMessage } = websocketHook;
 
   return (
     <div className="h-full max-h-screen flex flex-col gap-4 py-2">

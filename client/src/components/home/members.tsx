@@ -26,12 +26,12 @@ export function Members() {
   // const users = getUsers();
   // listen to events on updating the members
   const [users, setUsers] = useState<Users>([]);
-  const websocketHook = useWebSocketContext();
+  const { websocketHook } = useWebSocketContext();
 
   useEffect(() => {
     if (websocketHook === null) return;
 
-    const websocket = websocketHook.websocketHook.getWebSocket();
+    const websocket = websocketHook.getWebSocket();
 
     if (websocket === null) return;
     websocket.addEventListener("message", listener);
@@ -62,9 +62,9 @@ export function Members() {
     return () => {
       websocket.removeEventListener("message", listener);
     };
-  }, [websocketHook?.websocketHook.getWebSocket()]);
+  }, [websocketHook.getWebSocket()]);
 
-  if (websocketHook?.websocketHook === null) {
+  if (websocketHook === null) {
     return <div>Loading...</div>;
   }
 
