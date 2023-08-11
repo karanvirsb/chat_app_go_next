@@ -66,7 +66,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			if err != nil {
 				logger.Printf("connected users error: %v", err)
 			}
-			socket.writeJSON(string(msg))
+			go socket.writeJSON(string(msg))
 
 		case "send_message_to_room":
 			if room, ok := (*rooms)[jsonMessage.Room]; ok {
