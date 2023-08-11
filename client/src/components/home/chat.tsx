@@ -11,7 +11,7 @@ import { isMessage } from "@/types/messages/isMessage";
 import { Message } from "@/types/messages/messageTypes";
 
 export interface MessageHistory {
-  [key: string]: Array<Message<unknown> | string>;
+  [key: string]: Array<Message | string>;
 }
 
 export function Chat() {
@@ -44,7 +44,7 @@ export function Chat() {
         setMessageHistory((prev) => {
           if (jsonMessage.room !== undefined) {
             let prevRoom = prev[jsonMessage.room] ?? [];
-            prevRoom.push(jsonMessage as Message<any>);
+            prevRoom.push(jsonMessage as Message);
             return {
               ...prev,
               [jsonMessage.room]: prevRoom,
@@ -93,7 +93,7 @@ export function Chat() {
     <div className="h-full max-h-screen flex flex-col gap-4 py-2">
       <section className="flex-grow overflow-y-auto p-2 outline outline-[1px] outline-gray-200 rounded-md">
         {messageHistory[room.name]?.map((msg, index) => {
-          if (isUserMessage(msg)) {
+          if (isUserMessage(msg) && msg.eventName === "send_message_to_room") {
             const date = new Date(msg?.data?.time ?? Date.now());
             return (
               <div key={index} className="flex flex-col gap-4 my-8">
@@ -142,7 +142,7 @@ export function Chat() {
       },
       eventName: "send_message_to_room",
       room: room.name,
-    } satisfies Message<{ text: string; username: string; time: number }>);
+    } satisfies Message);
     message.current.value = "";
   }
 }
