@@ -7,6 +7,7 @@ import { useChatStore } from "@/store/GoChatStore";
 export function Sidebar() {
   const rooms = useChatStore((state) => state.rooms);
   const setActiveRoom = useChatStore((state) => state.setActiveRoom);
+  const setNotification = useChatStore((state) => state.setNotification);
 
   return (
     <div className="px-2 bg-brand">
@@ -25,6 +26,7 @@ export function Sidebar() {
               }`}
               onClick={() => {
                 setActiveRoom(room.name);
+                setNotification(room.name, false);
               }}
             >
               Room {room.name}
