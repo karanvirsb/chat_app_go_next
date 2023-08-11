@@ -1,8 +1,7 @@
 "use client";
 import { useWebSocketContext } from "@/context/WebSocketContext";
+import { Users } from "@/types/messages/messageTypes";
 import React, { useEffect, useState } from "react";
-
-type Users = Array<{ username: string; id: string }>;
 
 // type ReturnData<T> =
 //   | {
