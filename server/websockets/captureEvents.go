@@ -8,6 +8,8 @@ import (
 
 	"log"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 type Message[T any] struct {
@@ -35,6 +37,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		Connections.RemoveConnection(socket)
 		Connections.NotifyUsersOfLeave(socket)
 	}()
+
 	buf.Grow(30000)
 	// wg := sync.WaitGroup{}
 	for {
@@ -45,7 +48,6 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			logger.Printf("\nJson Message Error: %v\n", err)
 			go printBuffer()
 			if strings.Contains(err.Error(), "close") || strings.Contains(err.Error(), "RSV") {
-				socket.Conn.WriteJSON("")
 				break
 			}
 			continue
@@ -124,14 +126,13 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out 
 	wg.Add(len(msg.Data.Rooms))
 	for _, room := range msg.Data.Rooms {
 
-		logger.Printf("Does Room %v Exist: %v\n", room, DoesRoomExist(rooms, room))
 		if foundRoom := DoesRoomExist(rooms, room); foundRoom != nil {
-			logger.Printf("Found room: %v\n", room)
+
+			logger.Printf("%v: %v\n", color.BlueString("Found Room"), room)
 			foundRoom.Register <- socket
 			defer func() { foundRoom.Unregister <- socket }()
-
 		} else {
-			logger.Printf("New room: %v\n", room)
+			logger.Printf("%v: %v\n", color.BlueString("Created New Room"), room)
 			newRoom := NewRoom(room)
 			(*rooms)[room] = *newRoom
 			go newRoom.RunRoom()
@@ -143,7 +144,7 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out 
 
 	defer func() {
 		wg.Done()
-		logger.Printf("Ended join rooms for socket %v", socket.Username)
+		logger.Printf("%v: %v", color.GreenString("Ended join rooms for socket"), socket.Username)
 	}()
 
 }
