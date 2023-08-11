@@ -16,9 +16,8 @@ export interface MessageHistory {
 export function Chat() {
   const { websocketHook } = useWebSocketContext();
   const { storage: session } = useSessionStorage();
-  const room = useChatStore((state) =>
-    state.rooms.find((r) => r.visible)
-  ) as Room;
+  const rooms = useChatStore((state) => state.rooms);
+  const room = rooms.find((r) => r.visible) as Room;
   const setNotification = useChatStore((state) => state.setNotification);
   const [messageHistory, setMessageHistory] = useState<MessageHistory>({});
 
