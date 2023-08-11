@@ -2,11 +2,12 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Textarea } from "../ui/textarea";
-import { isUserMessage } from "@/types/messages/isUserMessage";
+import { UserSentMessage, isUserMessage } from "@/types/messages/isUserMessage";
 import useSessionStorage from "@/hooks/useSessionStorage";
 import { useWebSocketContext } from "@/context/WebSocketContext";
 import { useChatStore } from "@/store/GoChatStore";
 import { Room } from "@/store/room/RoomStore";
+import { isMessage } from "@/types/messages/isMessage";
 
 export interface MessageHistory {
   [key: string]: Array<Message<unknown> | string>;
@@ -33,15 +34,23 @@ export function Chat() {
     function listener(e: any) {
       const jsonMessage = JSON.parse(JSON.parse((e as any).data));
       console.log(jsonMessage);
+      if (!isMessage(jsonMessage)) return;
+
       // add type guard
-      if (jsonMessage.eventName === "send_message_to_room") {
+      if (
+        jsonMessage?.eventName === "send_message_to_room" &&
+        isMessage<UserSentMessage>(jsonMessage)
+      ) {
         setMessageHistory((prev) => {
-          let prevRoom = prev[jsonMessage.room] ?? [];
-          prevRoom.push(jsonMessage as Message<any>);
-          return {
-            ...prev,
-            [jsonMessage.room]: prevRoom,
-          };
+          if (jsonMessage.room !== undefined) {
+            let prevRoom = prev[jsonMessage.room] ?? [];
+            prevRoom.push(jsonMessage as Message<any>);
+            return {
+              ...prev,
+              [jsonMessage.room]: prevRoom,
+            };
+          }
+          return prev;
         });
 
         // check if room is visible
