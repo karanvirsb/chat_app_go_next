@@ -37,41 +37,46 @@ export function Chat() {
     const { getWebSocket } = websocketHook?.websocketHook;
     const websocket = getWebSocket();
     if (websocket === null) return;
-    if (websocket.OPEN) {
-      websocket.addEventListener("message", (e) => {
-        const jsonMessage = JSON.parse(JSON.parse((e as any).data));
-        console.log(jsonMessage);
-        // add type guard
-        if (jsonMessage.eventName === "send_message_to_room") {
-          setMessageHistory((prev) => {
-            let prevRoom = prev[jsonMessage.room] ?? [];
-            prevRoom.push(jsonMessage as Message<any>);
-            return {
-              ...prev,
-              [jsonMessage.room]: prevRoom,
-            };
-          });
-        } else if (jsonMessage.eventName === "user_online") {
-          setMessageHistory((prev) => {
-            let prevRoom = prev[jsonMessage.room] ?? [];
-            prevRoom.push(`User ${jsonMessage.data.username} has joined.`);
-            return {
-              ...prev,
-              [jsonMessage.room]: prevRoom,
-            };
-          });
-        } else if (jsonMessage.eventName === "user_left") {
-          setMessageHistory((prev) => {
-            let prevRoom = prev[jsonMessage.room] ?? [];
-            prevRoom.push(`User ${jsonMessage.data.username} has left.`);
-            return {
-              ...prev,
-              [jsonMessage.room]: prevRoom,
-            };
-          });
-        }
-      });
+
+    websocket.addEventListener("message", listener);
+
+    function listener(e: any) {
+      const jsonMessage = JSON.parse(JSON.parse((e as any).data));
+      console.log(jsonMessage);
+      // add type guard
+      if (jsonMessage.eventName === "send_message_to_room") {
+        setMessageHistory((prev) => {
+          let prevRoom = prev[jsonMessage.room] ?? [];
+          prevRoom.push(jsonMessage as Message<any>);
+          return {
+            ...prev,
+            [jsonMessage.room]: prevRoom,
+          };
+        });
+      } else if (jsonMessage.eventName === "user_online") {
+        setMessageHistory((prev) => {
+          let prevRoom = prev[jsonMessage.room] ?? [];
+          prevRoom.push(`User ${jsonMessage.data.username} has joined.`);
+          return {
+            ...prev,
+            [jsonMessage.room]: prevRoom,
+          };
+        });
+      } else if (jsonMessage.eventName === "user_left") {
+        setMessageHistory((prev) => {
+          let prevRoom = prev[jsonMessage.room] ?? [];
+          prevRoom.push(`User ${jsonMessage.data.username} has left.`);
+          return {
+            ...prev,
+            [jsonMessage.room]: prevRoom,
+          };
+        });
+      }
     }
+
+    return () => {
+      websocket.removeEventListener("message", listener);
+    };
   }, [websocketHook?.websocketHook.getWebSocket()]);
 
   if (websocketHook === null) return <div>Loading...</div>;

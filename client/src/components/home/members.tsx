@@ -34,13 +34,14 @@ export function Members() {
     const websocket = websocketHook.websocketHook.getWebSocket();
 
     if (websocket === null) return;
+    websocket.addEventListener("message", listener);
 
-    websocket.addEventListener("message", (e) => {
+    function listener(e: any) {
       const jsonMessage = JSON.parse(JSON.parse((e as any).data));
-      console.log(jsonMessage);
+      console.log(jsonMessage.eventName);
 
       if (jsonMessage.eventName === "connected_users") {
-        setUsers(jsonMessage.data.users);
+        setUsers((prev) => [...prev, ...jsonMessage.data.users]);
       } else if (jsonMessage.eventName === "user_disconnected") {
         setUsers((prev) => {
           const newUsers = prev.filter(
@@ -56,7 +57,11 @@ export function Members() {
           ];
         });
       }
-    });
+    }
+
+    return () => {
+      websocket.removeEventListener("message", listener);
+    };
   }, [websocketHook?.websocketHook.getWebSocket()]);
 
   if (websocketHook?.websocketHook === null) {
