@@ -30,6 +30,7 @@ export function Chat() {
   const room = useChatStore((state) =>
     state.rooms.find((r) => r.visible)
   ) as Room;
+  const setNotification = useChatStore((state) => state.setNotification);
   const [messageHistory, setMessageHistory] = useState<MessageHistory>({});
 
   const message = useRef<HTMLTextAreaElement | null>(null);
@@ -54,6 +55,11 @@ export function Chat() {
             [jsonMessage.room]: prevRoom,
           };
         });
+
+        // check if room is visible
+        if (jsonMessage.room !== room.name) {
+          setNotification(jsonMessage.room as string, true);
+        }
       } else if (jsonMessage.eventName === "user_online") {
         setMessageHistory((prev) => {
           let prevRoom = prev[jsonMessage.room] ?? [];
