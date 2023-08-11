@@ -9,6 +9,8 @@ export const messageActions = {
   JOIN_ROOM: "join_room",
 };
 
+export type Users = Array<{ username: string; id: string }>;
+
 export interface Message<T> {
   data?: T;
   room?: string;
