@@ -1,6 +1,6 @@
 import { rooms } from "@/app/page";
 import { useRouter } from "next/navigation";
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useRef } from "react";
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 import { useAuthContext } from "./AuthContext";
@@ -34,13 +34,13 @@ export function WebSocketContextProvider({
   }, [session, router]);
 
   useEffect(() => {
-    const websocket = websocketHook?.getWebSocket();
+    const websocket = websocketHook.getWebSocket();
     if (websocket != null) {
       websocket.addEventListener("error", (ev) => {
         console.log("Websocket Error: ", ev);
       });
     }
-  }, [websocketHook]);
+  }, [websocketHook.getWebSocket()]);
 
   useEffect(() => {
     if (!session || !session?.username || session.username.length < 3) return;
@@ -49,7 +49,7 @@ export function WebSocketContextProvider({
       eventName: "join_room",
       data: { username: session.username, rooms },
     } satisfies Message<JoinRoom>);
-  }, [websocketHook.getWebSocket(), session]);
+  }, [websocketHook.sendJsonMessage, session]);
 
   return (
     <WebSocketContext.Provider value={{ websocketHook }}>
