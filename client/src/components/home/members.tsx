@@ -3,23 +3,6 @@ import { useWebSocketContext } from "@/context/WebSocketContext";
 import { Users } from "@/types/messages/messageTypes";
 import React, { useEffect, useState } from "react";
 
-// type ReturnData<T> =
-//   | {
-//       success: true;
-//       data: T;
-//     }
-//   | { success: false; error: unknown };
-
-// async function getUsers(): Promise<ReturnData<Users>> {
-//   const res = await fetch("http://localhost:8000/users");
-
-//   if (!res.ok) {
-//     return { success: false, error: "Failed to fetch users" };
-//   }
-
-//   return { success: true, data: (await res.json()) as Users };
-// }
-
 export function Members() {
   // fetch members from server
   // const users = getUsers();
