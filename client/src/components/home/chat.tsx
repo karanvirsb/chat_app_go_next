@@ -84,7 +84,7 @@ export function Chat() {
     return () => {
       websocket.removeEventListener("message", listener);
     };
-  }, [websocketHook.getWebSocket()]);
+  }, [websocketHook.getWebSocket(), room, setNotification]);
 
   if (websocketHook === null) return <div>Loading...</div>;
 
