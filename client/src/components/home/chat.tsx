@@ -34,7 +34,7 @@ export function Chat() {
     function listener(e: any) {
       const jsonMessage = JSON.parse(JSON.parse((e as any).data));
       console.log(jsonMessage);
-      if (!isMessage(jsonMessage)) return;
+      // if (!isMessage(jsonMessage)) return;
 
       // add type guard
       if (
@@ -72,7 +72,6 @@ export function Chat() {
           prevRoom.push(`User ${jsonMessage.data.username} has left.`);
           return {
             ...prev,
-            [jsonMessage.room]: prevRoom,
           };
         });
       }
