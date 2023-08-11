@@ -32,14 +32,15 @@ func (c *Connections) RemoveConnection(conn *Socket) {
 	c.Conns = append(c.Conns[:index], c.Conns[index+1:]...)
 }
 
-type UserLeftMessage struct {
-	Id string `json:"id"`
+type UserStatusMessage struct {
+	Id       string `json:"id"`
+	Username string `json:"username"`
 }
 
 func (c *Connections) NotifyUsersOfLeave(s *Socket) {
 	c.Mu.Lock()
 	defer c.Mu.Unlock()
-	leftMessage, err := json.Marshal(Message[UserLeftMessage]{Data: UserLeftMessage{Id: s.Id}, EventName: "user_disconnected"})
+	leftMessage, err := json.Marshal(Message[UserStatusMessage]{Data: UserStatusMessage{Id: s.Id, Username: s.Username}, EventName: "user_disconnected"})
 	if err != nil {
 		fmt.Printf("Left Message Error: %v", err)
 		return
@@ -49,15 +50,10 @@ func (c *Connections) NotifyUsersOfLeave(s *Socket) {
 	}
 }
 
-type UserConnectedMessage struct {
-	Username string `json:"username"`
-	Id       string `json:"id"`
-}
-
 func (c *Connections) NotifyUsersOfConnectedUser(s *Socket) {
 	c.Mu.Lock()
 	defer c.Mu.Unlock()
-	joinMessage, err := json.Marshal(Message[UserConnectedMessage]{Data: UserConnectedMessage{Id: s.Id, Username: s.Username}, EventName: "user_connected"})
+	joinMessage, err := json.Marshal(Message[UserStatusMessage]{Data: UserStatusMessage{Id: s.Id, Username: s.Username}, EventName: "user_connected"})
 	if err != nil {
 		fmt.Printf("User Connected Message Error: %v", err)
 		return
