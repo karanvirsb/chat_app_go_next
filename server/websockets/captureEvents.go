@@ -37,7 +37,6 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 	defer func() {
 		Connections.RemoveConnection(socket)
 		Connections.NotifyUsersOfLeave(socket)
-		wg.Done()
 	}()
 
 	for {
@@ -142,14 +141,12 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out 
 			newRoom.Register <- socket
 			defer func() {
 				newRoom.Unregister <- socket
-				wg.Done()
 			}()
 		}
 	}
 	wg.Wait()
 
 	defer func() {
-		wg.Done()
 		fmt.Printf("%v: %v", color.GreenString("Ended join rooms for socket"), socket.Username)
 	}()
 
