@@ -1,7 +1,8 @@
 "use client";
 import { useWebSocketContext } from "@/context/WebSocketContext";
+import eventEmitter from "@/lib/eventEmitter";
 import { isMessage } from "@/types/messages/isMessage";
-import { Users } from "@/types/messages/messageTypes";
+import { Message, Users } from "@/types/messages/messageTypes";
 import React, { useEffect, useState } from "react";
 
 export function Members() {
@@ -11,46 +12,54 @@ export function Members() {
   const [users, setUsers] = useState<Users>([]);
   const { websocketHook } = useWebSocketContext();
 
+  // useEffect(() => {
+  //   if (websocketHook === null) return;
+
+  //   const websocket = websocketHook.getWebSocket();
+
+  //   if (websocket === null) return;
+  //   websocket.addEventListener("message", listener);
+
+  //   function listener(e: any) {
+  //     const jsonMessage = JSON.parse(JSON.parse((e as any).data));
+  //     // console.log(jsonMessage.eventName);
+  //     if (!isMessage(jsonMessage)) return;
+
+  //     if (jsonMessage.eventName === "connected_users") {
+  //       // setUsers((prev) => [...prev, ...jsonMessage.data.users]);
+  //     } else if (jsonMessage.eventName === "user_disconnected") {
+  //       setUsers((prev) => {
+  //         const newUsers = prev.filter(
+  //           (user) => user.id !== jsonMessage.data.id
+  //         );
+  //         return newUsers;
+  //       });
+  //     } else if (jsonMessage.eventName === "user_connected") {
+  //       setUsers((prev) => {
+  //         return [
+  //           ...prev,
+  //           { id: jsonMessage.data.id, username: jsonMessage.data.username },
+  //         ];
+  //       });
+  //     }
+  //   }
+
+  //   return () => {
+  //     websocket.removeEventListener("message", listener);
+  //   };
+  // }, [websocketHook.getWebSocket()]);
   useEffect(() => {
-    if (websocketHook === null) return;
+    console.log(users);
+  }, [users]);
 
-    const websocket = websocketHook.getWebSocket();
-
-    if (websocket === null) return;
-    websocket.addEventListener("message", listener);
-
-    function listener(e: any) {
-      const jsonMessage = JSON.parse(JSON.parse((e as any).data));
-      console.log(jsonMessage.eventName);
-      if (!isMessage(jsonMessage)) return;
-
-      if (jsonMessage.eventName === "connected_users") {
-        setUsers((prev) => [...prev, ...jsonMessage.data.users]);
-      } else if (jsonMessage.eventName === "user_disconnected") {
-        setUsers((prev) => {
-          const newUsers = prev.filter(
-            (user) => user.id !== jsonMessage.data.id
-          );
-          return newUsers;
-        });
-      } else if (jsonMessage.eventName === "user_connected") {
-        setUsers((prev) => {
-          return [
-            ...prev,
-            { id: jsonMessage.data.id, username: jsonMessage.data.username },
-          ];
-        });
+  useEffect(() => {
+    eventEmitter.on("members", (data: Message) => {
+      if (data.eventName === "connected_users") {
+        console.log("setting data", data.data.users);
+        setUsers((prev) => [...prev, ...data.data.users]);
       }
-    }
-
-    return () => {
-      websocket.removeEventListener("message", listener);
-    };
-  }, [websocketHook.getWebSocket()]);
-
-  if (websocketHook === null) {
-    return <div>Loading...</div>;
-  }
+    });
+  }, [setUsers]);
 
   return (
     <div className="px-2 bg-brand">
