@@ -1,12 +1,10 @@
 package websockets
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"sync"
 
-	"log"
 	"strings"
 
 	"github.com/fatih/color"
@@ -27,13 +25,13 @@ type MessageConnectedUsers struct {
 	Users []User `json:"users,omitempty"`
 }
 
-var (
-	buf    bytes.Buffer
-	logger = log.New(&buf, "capture socket events logger: ", log.Default().Flags())
-)
+// var (
+// 	buf    bytes.Buffer
+// 	fmt.= log.New(&buf, "capture socket events logger: ", log.Default().Flags())
+// )
 
 func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[string]Room) {
-	buf.Grow(30000)
+	// buf.Grow(30000)
 	wg := sync.WaitGroup{}
 
 	defer func() {
@@ -47,8 +45,8 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		jsonMessage, err := socket.read()
 
 		if err != nil {
-			logger.Printf("\nJson Message Error: %v\n", err)
-			printBuffer()
+			fmt.Printf("\nJson Message Error: %v\n", err)
+			// printBuffer()
 			if strings.Contains(err.Error(), "close") || strings.Contains(err.Error(), "RSV") {
 				break
 			}
@@ -56,7 +54,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		}
 
 		msg, _ := json.Marshal(jsonMessage)
-		logger.Printf("\nJSON message: %v\n", string(msg))
+		fmt.Printf("\nJSON message: %v\n", string(msg))
 		switch jsonMessage.EventName {
 		case "join_room":
 			wg.Add(1)
@@ -68,7 +66,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			users := GetUsers(socket, Connections)
 			msg, err := json.Marshal(Message[MessageConnectedUsers]{EventName: "connected_users", Data: MessageConnectedUsers{Users: users}})
 			if err != nil {
-				logger.Printf("connected users error: %v", err)
+				fmt.Printf("connected users error: %v", err)
 			}
 			wg.Add(3)
 			go socket.writeJSON(string(msg))
@@ -82,23 +80,23 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			for _, socket := range Connections.Conns {
 				err := socket.Conn.WriteJSON(string(msg))
 				if err != nil {
-					logger.Printf("\nError while sending message: %v\n", err)
-					printBuffer()
+					fmt.Printf("\nError while sending message: %v\n", err)
+					// printBuffer()
 					continue
 				}
 			}
 		default:
 			socket.Conn.WriteMessage(1, []byte("Error: That event does not exist"))
 		}
-		printBuffer()
+		// printBuffer()
 	}
 	wg.Wait()
 }
 
-func printBuffer() {
-	fmt.Println(&buf)
-	buf.Reset()
-}
+// func printBuffer() {
+// 	fmt.Println(&buf)
+// 	buf.Reset()
+// }
 
 func DoesRoomExist(rooms *map[string]Room, roomName string) *Room {
 	r, ok := (*rooms)[roomName]
@@ -114,7 +112,7 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out 
 	err := json.Unmarshal(*message, &msg)
 
 	if err != nil {
-		logger.Printf("Error not a json - \n%v\n - \n%v\n", msg, err)
+		fmt.Printf("Error not a json - \n%v\n - \n%v\n", msg, err)
 		if strings.Contains(err.Error(), "close") {
 			wg.Done()
 			return
@@ -122,7 +120,7 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out 
 
 	}
 
-	logger.Printf("Join rooms case: %v\n", msg.Data.Rooms)
+	fmt.Printf("Join rooms case: %v\n", msg.Data.Rooms)
 
 	socket.Username = msg.Data.Username
 	out <- socket
@@ -133,11 +131,11 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out 
 
 		if foundRoom := DoesRoomExist(rooms, room); foundRoom != nil {
 
-			logger.Printf("%v: %v\n", color.BlueString("Found Room"), room)
+			fmt.Printf("%v: %v\n", color.BlueString("Found Room"), room)
 			foundRoom.Register <- socket
 			defer func() { foundRoom.Unregister <- socket }()
 		} else {
-			logger.Printf("%v: %v\n", color.BlueString("Created New Room"), room)
+			fmt.Printf("%v: %v\n", color.BlueString("Created New Room"), room)
 			newRoom := NewRoom(room)
 			(*rooms)[room] = *newRoom
 			go newRoom.RunRoom()
@@ -152,7 +150,7 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out 
 
 	defer func() {
 		wg.Done()
-		logger.Printf("%v: %v", color.GreenString("Ended join rooms for socket"), socket.Username)
+		fmt.Printf("%v: %v", color.GreenString("Ended join rooms for socket"), socket.Username)
 	}()
 
 }
