@@ -1,5 +1,6 @@
 "use client";
 import { useWebSocketContext } from "@/context/WebSocketContext";
+import { isMessage } from "@/types/messages/isMessage";
 import { Users } from "@/types/messages/messageTypes";
 import React, { useEffect, useState } from "react";
 
@@ -21,6 +22,7 @@ export function Members() {
     function listener(e: any) {
       const jsonMessage = JSON.parse(JSON.parse((e as any).data));
       console.log(jsonMessage.eventName);
+      if (!isMessage(jsonMessage)) return;
 
       if (jsonMessage.eventName === "connected_users") {
         setUsers((prev) => [...prev, ...jsonMessage.data.users]);
