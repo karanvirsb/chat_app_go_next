@@ -35,12 +35,9 @@ export function Chat() {
       const jsonMessage = JSON.parse(JSON.parse((e as any).data));
       console.log(jsonMessage);
       // if (!isMessage(jsonMessage)) return;
-
+      if (!isMessage(jsonMessage)) return;
       // add type guard
-      if (
-        jsonMessage?.eventName === "send_message_to_room" &&
-        isMessage<UserSentMessage>(jsonMessage)
-      ) {
+      if (jsonMessage.eventName === "send_message_to_room") {
         setMessageHistory((prev) => {
           if (jsonMessage.room !== undefined) {
             let prevRoom = prev[jsonMessage.room] ?? [];
@@ -60,7 +57,7 @@ export function Chat() {
       } else if (jsonMessage.eventName === "user_online") {
         setMessageHistory((prev) => {
           let prevRoom = prev[jsonMessage.room] ?? [];
-          prevRoom.push(`User ${jsonMessage.data.username} has joined.`);
+          prevRoom.push(`User - ${jsonMessage.data.username} - has joined.`);
           return {
             ...prev,
             [jsonMessage.room]: prevRoom,
@@ -70,7 +67,7 @@ export function Chat() {
         rooms.forEach((room) => {
           setMessageHistory((prev) => {
             let prevRoom = prev[room.name] ?? [];
-            prevRoom.push(`User ${jsonMessage.data.username} has left.`);
+            prevRoom.push(`User - ${jsonMessage.data.username} - has left.`);
             return {
               ...prev,
               [room.name]: prevRoom,
