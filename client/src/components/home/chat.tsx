@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Textarea } from "../ui/textarea";
-import { UserSentMessage, isUserMessage } from "@/types/messages/isUserMessage";
+import { isUserMessage } from "@/types/messages/isUserMessage";
 import useSessionStorage from "@/hooks/useSessionStorage";
 import { useWebSocketContext } from "@/context/WebSocketContext";
 import { useChatStore } from "@/store/GoChatStore";
