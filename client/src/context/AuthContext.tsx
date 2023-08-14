@@ -1,6 +1,7 @@
 "use client";
 import useSessionStorage, { ISessionStorage } from "@/hooks/useSessionStorage";
-import React, { createContext, useContext } from "react";
+import { useRouter } from "next/navigation";
+import React, { createContext, useContext, useEffect } from "react";
 
 interface IAuthContext {
   session: ISessionStorage | null;
@@ -19,6 +20,13 @@ export function AuthContextProvider({
 }) {
   const { storage: session, updateStorage: updateSession } =
     useSessionStorage();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!session || (session && session.username.length == 0)) {
+      router.replace("/auth");
+    }
+  }, [router, session]);
 
   return (
     <AuthContext.Provider value={{ session, updateSession }}>
