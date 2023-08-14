@@ -55,7 +55,7 @@ func main() {
 	router := mux.NewRouter()
 
 	wg := sync.WaitGroup{}
-	wgCounter := 1
+
 	router.HandleFunc("/socket", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -73,12 +73,11 @@ func main() {
 
 		connections.AddConnection(&socket)
 		fmt.Printf("socket connected: %v\n", socket.Conn.RemoteAddr())
-		wg.Add(wgCounter)
-		wgCounter++
+		wg.Add(1)
 		go websockets.CaptureSocketEvents(&socket, &connections, &rooms)
 		wg.Wait()
 		defer func() {
-			wg.Done()
+
 			fmt.Println("****Connection closed***")
 		}()
 
