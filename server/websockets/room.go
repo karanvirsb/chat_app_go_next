@@ -28,12 +28,12 @@ func (room *Room) RunRoom() {
 		select {
 		case socket := <-room.Register:
 			room.Sockets[socket] = true
-			newUsernotification(room, socket)
+			go newUsernotification(room, socket)
 		case socket := <-room.Unregister:
 			_, ok := room.Sockets[socket]
 			if ok {
 				delete(room.Sockets, socket)
-				userLeftNotification(room, socket)
+				go userLeftNotification(room, socket)
 			}
 		case message := <-room.Broadcast:
 			for s := range room.Sockets {
@@ -45,6 +45,7 @@ func (room *Room) RunRoom() {
 }
 
 func newUsernotification(room *Room, socket *Socket) {
+	fmt.Printf("Registering socket: %v\n", socket.Username)
 	message := Message[User]{Data: User{Username: socket.Username, Id: socket.Id}, EventName: "user_online", Room: room.Name}
 	jsonMessage, err := json.Marshal(message)
 	if err != nil {
@@ -56,6 +57,7 @@ func newUsernotification(room *Room, socket *Socket) {
 	}
 }
 func userLeftNotification(room *Room, socket *Socket) {
+	fmt.Printf("Removing socket: %v\n", socket.Username)
 	message := Message[User]{Data: User{Username: socket.Username, Id: socket.Id}, EventName: "user_left", Room: room.Name}
 	jsonMessage, err := json.Marshal(message)
 	if err != nil {
