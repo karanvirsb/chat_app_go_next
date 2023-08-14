@@ -1,10 +1,18 @@
-import { rooms } from "@/app/page";
 import { useRouter } from "next/navigation";
-import React, { createContext, useContext, useEffect, useRef } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 import { useAuthContext } from "./AuthContext";
 import { Message } from "@/types/messages/messageTypes";
+import { useChatStore } from "@/store/GoChatStore";
+import eventEmitter from "@/lib/eventEmitter";
 
 export interface IWebSocketContext {
   websocketHook: WebSocketHook<JsonValue | null, MessageEvent<any> | null>;
@@ -33,8 +41,9 @@ export function WebSocketContextProvider({
 }) {
   const { session } = useAuthContext();
   const router = useRouter();
-  const websocketHook = useWebSocket(`ws://localhost:8000/socket`);
-
+  const websocketHook = useWebSocket("ws://localhost:8000/socket");
+  const rooms = useChatStore((state) => state.rooms);
+  const roomNames = useCallback(() => rooms.map((room) => room.name), [rooms]);
   useEffect(() => {
     if (!session || (session && session.username.length == 0)) {
       router.replace("/auth");
@@ -55,9 +64,22 @@ export function WebSocketContextProvider({
 
     websocketHook.sendJsonMessage({
       eventName: "join_room",
-      data: { username: session.username, rooms },
+      data: {
+        username: session.username,
+        rooms: roomNames(),
+      },
     } satisfies Message);
-  }, [websocketHook.sendJsonMessage, session]);
+  }, [websocketHook.sendJsonMessage, session, rooms]);
+
+  useEffect(() => {
+    const { lastJsonMessage } = websocketHook;
+
+    if (lastJsonMessage === null) return;
+    const jsonMessage = JSON.parse(lastJsonMessage as any) as Message;
+    if (jsonMessage.eventName === "connected_users") {
+      eventEmitter.emit("members", jsonMessage);
+    }
+  }, [websocketHook.lastJsonMessage]);
 
   return (
     <WebSocketContext.Provider value={{ websocketHook }}>
