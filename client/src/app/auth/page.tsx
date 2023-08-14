@@ -18,7 +18,7 @@ interface Inputs {
 }
 
 export default function Auth() {
-  const form = useForm<Inputs>();
+  const form = useForm<Inputs>({ defaultValues: { username: "" } });
   const router = useRouter();
   const { updateSession } = useAuthContext();
   const [usernameErr, setUsernameErr] = useState("");
