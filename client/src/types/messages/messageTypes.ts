@@ -5,6 +5,7 @@ export type messageEvents = {
   USER_ONLINE_EVENT: "user_online";
   USER_DISCONNECTED_EVENT: "user_disconnected";
   CONNECTED_USERS_EVENT: "connected_users";
+  USER_CONNECTED_EVENT: "user_connected";
 };
 
 export type messageActions = {
@@ -26,7 +27,15 @@ export type Message =
       data: UserSentMessage;
       room: string;
     }
-  | { eventName: messageEvents["CONNECTED_USERS_EVENT"]; data: Users }
+  | {
+      eventName: messageEvents["CONNECTED_USERS_EVENT"];
+      data: { users: Users };
+    }
   | { eventName: messageEvents["USER_DISCONNECTED_EVENT"]; data: UserStatus }
-  | { eventName: messageEvents["USER_ONLINE_EVENT"]; data: UserStatus }
+  | {
+      eventName: messageEvents["USER_ONLINE_EVENT"];
+      data: UserStatus;
+      room: string;
+    }
+  | { eventName: messageEvents["USER_CONNECTED_EVENT"]; data: UserStatus }
   | { eventName: messageActions["JOIN_ROOM"]; data: JoinRoom };
