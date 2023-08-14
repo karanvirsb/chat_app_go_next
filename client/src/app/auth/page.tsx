@@ -53,7 +53,6 @@ export default function Auth() {
   );
 
   function handleOnSubmit(data: Inputs) {
-    console.log(data);
     if (data.username.length < 3) {
       setUsernameErr("Username must be 3 characters long.");
       return;
