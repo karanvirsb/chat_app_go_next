@@ -33,20 +33,22 @@ var (
 )
 
 func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[string]Room) {
+	buf.Grow(30000)
+	wg := sync.WaitGroup{}
+
 	defer func() {
 		Connections.RemoveConnection(socket)
 		Connections.NotifyUsersOfLeave(socket)
+		wg.Done()
 	}()
 
-	buf.Grow(30000)
-	// wg := sync.WaitGroup{}
 	for {
 
 		jsonMessage, err := socket.read()
 
 		if err != nil {
 			logger.Printf("\nJson Message Error: %v\n", err)
-			go printBuffer()
+			printBuffer()
 			if strings.Contains(err.Error(), "close") || strings.Contains(err.Error(), "RSV") {
 				break
 			}
@@ -55,19 +57,20 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 
 		msg, _ := json.Marshal(jsonMessage)
 		logger.Printf("\nJSON message: %v\n", string(msg))
-		go printBuffer()
 		switch jsonMessage.EventName {
 		case "join_room":
-			// wg.Add(count)
+			wg.Add(1)
 			message := make(chan *Socket)
 			go joinRoomEvent(socket, rooms, &msg, message)
 			socket := <-message
+			wg.Add(2)
 			go Connections.NotifyUsersOfConnectedUser(socket)
 			users := GetUsers(socket, Connections)
 			msg, err := json.Marshal(Message[MessageConnectedUsers]{EventName: "connected_users", Data: MessageConnectedUsers{Users: users}})
 			if err != nil {
 				logger.Printf("connected users error: %v", err)
 			}
+			wg.Add(3)
 			go socket.writeJSON(string(msg))
 
 		case "send_message_to_room":
@@ -80,14 +83,16 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 				err := socket.Conn.WriteJSON(string(msg))
 				if err != nil {
 					logger.Printf("\nError while sending message: %v\n", err)
-					go printBuffer()
+					printBuffer()
 					continue
 				}
 			}
 		default:
 			socket.Conn.WriteMessage(1, []byte("Error: That event does not exist"))
 		}
+		printBuffer()
 	}
+	wg.Wait()
 }
 
 func printBuffer() {
@@ -137,7 +142,10 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out 
 			(*rooms)[room] = *newRoom
 			go newRoom.RunRoom()
 			newRoom.Register <- socket
-			defer func() { newRoom.Unregister <- socket }()
+			defer func() {
+				newRoom.Unregister <- socket
+				wg.Done()
+			}()
 		}
 	}
 	wg.Wait()
