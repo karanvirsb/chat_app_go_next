@@ -36,7 +36,6 @@ export function WebSocketContextProvider({
   const websocketHook = useWebSocket(`ws://localhost:8000/socket`);
 
   useEffect(() => {
-    console.log(session);
     if (!session || (session && session.username.length == 0)) {
       router.replace("/auth");
     }
