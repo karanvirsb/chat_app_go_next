@@ -46,7 +46,7 @@ func (c *Connections) NotifyUsersOfLeave(s *Socket) {
 		return
 	}
 	for _, socket := range c.Conns {
-		socket.writeJSON(string(leftMessage))
+		socket.writeJSON(string(leftMessage), nil)
 	}
 }
 
@@ -68,7 +68,7 @@ func (c *Connections) NotifyUsersOfConnectedUser(s *Socket, cb func()) {
 
 	for _, socket := range c.Conns {
 		fmt.Printf("Sending to connection: %v\n", socket.Username)
-		err = socket.writeJSON(string(joinMessage))
+		err = socket.writeJSON(string(joinMessage), nil)
 		if err != nil {
 			fmt.Printf("Sending Connection Error for user %v: %v\n", socket.Username, err)
 		}

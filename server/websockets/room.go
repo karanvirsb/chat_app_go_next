@@ -37,7 +37,7 @@ func (room *Room) RunRoom() {
 			}
 		case message := <-room.Broadcast:
 			for s := range room.Sockets {
-				s.writeJSON(string(message))
+				s.writeJSON(string(message), nil)
 			}
 		}
 
@@ -53,7 +53,7 @@ func newUsernotification(room *Room, socket *Socket) {
 		return
 	}
 	for s := range room.Sockets {
-		s.writeJSON(string(jsonMessage))
+		s.writeJSON(string(jsonMessage), nil)
 	}
 }
 func userLeftNotification(room *Room, socket *Socket) {
@@ -65,6 +65,6 @@ func userLeftNotification(room *Room, socket *Socket) {
 		return
 	}
 	for s := range room.Sockets {
-		s.writeJSON(string(jsonMessage))
+		s.writeJSON(string(jsonMessage), nil)
 	}
 }
