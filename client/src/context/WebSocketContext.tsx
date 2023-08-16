@@ -41,7 +41,14 @@ export function WebSocketContextProvider({
 }) {
   const { session } = useAuthContext();
   const router = useRouter();
-  const websocketHook = useWebSocket("ws://localhost:8000/socket");
+  const {
+    getWebSocket,
+    lastJsonMessage,
+    sendJsonMessage,
+    readyState,
+    lastMessage,
+    sendMessage,
+  } = useWebSocket("ws://localhost:8000/socket");
   const rooms = useChatStore((state) => state.rooms);
   const roomNames = useCallback(() => rooms.map((room) => room.name), [rooms]);
   useEffect(() => {
@@ -51,35 +58,42 @@ export function WebSocketContextProvider({
   }, [session, router]);
 
   useEffect(() => {
-    const websocket = websocketHook.getWebSocket();
+    const websocket = getWebSocket();
     if (websocket != null) {
       websocket.addEventListener("error", (ev) => {
         console.log("Websocket Error: ", ev);
       });
     }
-  }, [websocketHook.getWebSocket()]);
+  }, [getWebSocket]);
 
   useEffect(() => {
     if (!session || !session?.username || session.username.length < 3) return;
 
-    websocketHook.sendJsonMessage({
+    sendJsonMessage({
       eventName: "join_room",
       data: {
         username: session.username,
         rooms: roomNames(),
       },
     } satisfies Message);
-  }, [websocketHook.sendJsonMessage, session, rooms]);
+  }, [getWebSocket, session, sendJsonMessage, roomNames]);
 
   useEffect(() => {
-    const { lastJsonMessage } = websocketHook;
-
     if (lastJsonMessage === null) return;
     const jsonMessage = JSON.parse(lastJsonMessage as any) as Message;
     if (jsonMessage.eventName === "connected_users") {
       eventEmitter.emit("members", jsonMessage);
     }
-  }, [websocketHook.lastJsonMessage]);
+  }, [lastJsonMessage]);
+
+  const websocketHook = {
+    lastJsonMessage,
+    readyState,
+    sendJsonMessage,
+    getWebSocket,
+    lastMessage,
+    sendMessage,
+  };
 
   return (
     <WebSocketContext.Provider value={{ websocketHook }}>
