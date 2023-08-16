@@ -47,6 +47,8 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			fmt.Printf("\nJson Message Error: %v\n", err)
 			// printBuffer()
 			if strings.Contains(err.Error(), "close") || strings.Contains(err.Error(), "RSV") {
+				Connections.RemoveConnection(socket)
+				Connections.NotifyUsersOfLeave(socket)
 				break
 			}
 			continue
@@ -61,7 +63,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			go joinRoomEvent(socket, rooms, &msg, message)
 			socket := <-message
 			wg.Add(2)
-			go Connections.NotifyUsersOfConnectedUser(socket)
+			go Connections.NotifyUsersOfConnectedUser(socket, wg.Done)
 			users := GetUsers(socket, Connections)
 			msg, err := json.Marshal(Message[MessageConnectedUsers]{EventName: "connected_users", Data: MessageConnectedUsers{Users: users}})
 			if err != nil {
