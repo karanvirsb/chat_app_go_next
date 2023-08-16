@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -50,7 +51,7 @@ export function WebSocketContextProvider({
     sendMessage,
   } = useWebSocket("ws://localhost:8000/socket");
   const rooms = useChatStore((state) => state.rooms);
-  const roomNames = useCallback(() => rooms.map((room) => room.name), [rooms]);
+  const roomNames = useMemo(() => rooms.map((room) => room.name), [rooms]);
   useEffect(() => {
     if (!session || (session && session.username.length == 0)) {
       router.replace("/auth");
@@ -73,10 +74,10 @@ export function WebSocketContextProvider({
       eventName: "join_room",
       data: {
         username: session.username,
-        rooms: roomNames(),
+        rooms: roomNames,
       },
     } satisfies Message);
-  }, [getWebSocket, session, sendJsonMessage, roomNames]);
+  }, [getWebSocket, session, sendJsonMessage]);
 
   useEffect(() => {
     if (lastJsonMessage === null) return;
