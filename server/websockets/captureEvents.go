@@ -31,7 +31,7 @@ type MessageConnectedUsers struct {
 // )
 
 func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[string]Room) {
-	// buf.Grow(30000)
+
 	wg := sync.WaitGroup{}
 
 	defer func() {
@@ -45,10 +45,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 
 		if err != nil {
 			fmt.Printf("\nJson Message Error: %v\n", err)
-			// printBuffer()
 			if strings.Contains(err.Error(), "close") || strings.Contains(err.Error(), "RSV") {
-				Connections.RemoveConnection(socket)
-				Connections.NotifyUsersOfLeave(socket)
 				break
 			}
 			continue
@@ -58,19 +55,18 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		fmt.Printf("\nJSON message: %v\n", string(msg))
 		switch jsonMessage.EventName {
 		case "join_room":
-			wg.Add(1)
 			message := make(chan *Socket)
 			go joinRoomEvent(socket, rooms, &msg, message)
 			socket := <-message
-			wg.Add(2)
+			wg.Add(1)
 			go Connections.NotifyUsersOfConnectedUser(socket, wg.Done)
 			users := GetUsers(socket, Connections)
 			msg, err := json.Marshal(Message[MessageConnectedUsers]{EventName: "connected_users", Data: MessageConnectedUsers{Users: users}})
 			if err != nil {
 				fmt.Printf("connected users error: %v", err)
 			}
-			wg.Add(3)
-			go socket.writeJSON(string(msg))
+			wg.Add(2)
+			go socket.writeJSON(string(msg), wg.Done)
 
 		case "send_message_to_room":
 			if room, ok := (*rooms)[jsonMessage.Room]; ok {
@@ -91,6 +87,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		}
 		// printBuffer()
 	}
+	wg.Done()
 	wg.Wait()
 }
 
