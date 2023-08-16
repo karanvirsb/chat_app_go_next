@@ -3,7 +3,6 @@ package websockets
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"sync"
 )
 
@@ -51,24 +50,27 @@ func (c *Connections) NotifyUsersOfLeave(s *Socket) {
 	}
 }
 
-func (c *Connections) NotifyUsersOfConnectedUser(s *Socket) {
+func (c *Connections) NotifyUsersOfConnectedUser(s *Socket, cb func()) {
 	fmt.Printf("Sending Notification to Connections: %v\n", s.Username)
 	c.Mu.Lock()
-	defer c.Mu.Unlock()
+	defer func() {
+		c.Mu.Unlock()
+		if cb == nil {
+			return
+		}
+		cb()
+	}()
 	joinMessage, err := json.Marshal(Message[UserStatusMessage]{Data: UserStatusMessage{Id: s.Id, Username: s.Username}, EventName: "user_connected"})
 	if err != nil {
 		fmt.Printf("User Connected Message Error: %v", err)
 		return
 	}
 
-	for i, socket := range c.Conns {
+	for _, socket := range c.Conns {
 		fmt.Printf("Sending to connection: %v\n", socket.Username)
 		err = socket.writeJSON(string(joinMessage))
 		if err != nil {
 			fmt.Printf("Sending Connection Error for user %v: %v\n", socket.Username, err)
-			if strings.Contains(err.Error(), "close") {
-				c.Conns = append(c.Conns[:i], c.Conns[i+1:]...)
-			}
 		}
 	}
 }
