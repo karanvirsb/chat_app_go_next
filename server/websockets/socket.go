@@ -23,8 +23,14 @@ func (s *Socket) read() (Message[any], error) {
 	return jsonMessage, err
 }
 
-func (s *Socket) writeJSON(v interface{}) error {
+func (s *Socket) writeJSON(v interface{}, cb func()) error {
 	s.mu.Lock()
-	defer s.mu.Unlock()
+	defer func() {
+		s.mu.Unlock()
+		if cb == nil {
+			return
+		}
+		cb()
+	}()
 	return s.Conn.WriteJSON(v)
 }
