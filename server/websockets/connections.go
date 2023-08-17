@@ -50,6 +50,22 @@ func (c *Connections) NotifyUsersOfLeave(s *Socket) {
 	}
 }
 
+func (c *Connections) GetUsers() []User {
+	c.Mu.Lock()
+	defer c.Mu.Unlock()
+
+	users := make([]User, len(c.Conns))
+
+	for _, socket := range c.Conns {
+		if len(socket.Username) == 0 {
+			continue
+		}
+		users = append(users, User{Id: socket.Id, Username: socket.Username})
+	}
+
+	return users
+}
+
 func (c *Connections) NotifyUsersOfConnectedUser(s *Socket, cb func()) {
 	fmt.Printf("Sending Notification to Connections: %v\n", s.Username)
 	c.Mu.Lock()
