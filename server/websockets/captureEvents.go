@@ -34,6 +34,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 
 	wg := sync.WaitGroup{}
 
+	done := make(chan bool)
 	defer func() {
 		Connections.RemoveConnection(socket)
 		Connections.NotifyUsersOfLeave(socket)
@@ -46,6 +47,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		if err != nil {
 			fmt.Printf("\nJson Message Error: %v\n", err)
 			if strings.Contains(err.Error(), "close") || strings.Contains(err.Error(), "RSV") {
+				done <- true
 				break
 			}
 			continue
@@ -56,17 +58,30 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		switch jsonMessage.EventName {
 		case "join_room":
 			message := make(chan *Socket)
-			go joinRoomEvent(socket, rooms, &msg, message)
-			socket := <-message
 			wg.Add(1)
-			go Connections.NotifyUsersOfConnectedUser(socket, wg.Done)
+			go func() {
+				defer wg.Done()
+				joinRoomEvent(socket, rooms, &msg, message, done)
+			}()
+			socket := <-message
+
+			wg.Add(2)
+			go func() {
+				defer wg.Done()
+				Connections.NotifyUsersOfConnectedUser(socket, nil)
+			}()
+
 			users := GetUsers(socket, Connections)
 			msg, err := json.Marshal(Message[MessageConnectedUsers]{EventName: "connected_users", Data: MessageConnectedUsers{Users: users}})
 			if err != nil {
 				fmt.Printf("connected users error: %v", err)
 			}
-			wg.Add(2)
-			go socket.writeJSON(string(msg), wg.Done)
+
+			wg.Add(3)
+			go func() {
+				defer wg.Done()
+				socket.writeJSON(string(msg), nil)
+			}()
 
 		case "send_message_to_room":
 			if room, ok := (*rooms)[jsonMessage.Room]; ok {
@@ -87,7 +102,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		}
 		// printBuffer()
 	}
-	wg.Done()
+	// wg.Done()
 	wg.Wait()
 }
 
@@ -104,7 +119,7 @@ func DoesRoomExist(rooms *map[string]Room, roomName string) *Room {
 	return &r
 }
 
-func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out chan *Socket) {
+func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out chan *Socket, in chan bool) {
 	wg := sync.WaitGroup{}
 	msg := Message[MessageJoinRoom]{}
 	err := json.Unmarshal(*message, &msg)
@@ -112,7 +127,6 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out 
 	if err != nil {
 		fmt.Printf("Error not a json - \n%v\n - \n%v\n", msg, err)
 		if strings.Contains(err.Error(), "close") {
-			wg.Done()
 			return
 		}
 
@@ -130,24 +144,35 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out 
 		if foundRoom := DoesRoomExist(rooms, room); foundRoom != nil {
 
 			fmt.Printf("%v: %v\n", color.BlueString("Found Room"), room)
+			go func() {
+				defer func() {
+					wg.Done()
+					foundRoom.Unregister <- socket
+					fmt.Printf("Ending found room %v", (*foundRoom).Name)
+				}()
+				foundRoom.RunRoom(in)
+			}()
 			foundRoom.Register <- socket
-			defer func() { foundRoom.Unregister <- socket }()
 		} else {
 			fmt.Printf("%v: %v\n", color.BlueString("Created New Room"), room)
 			newRoom := NewRoom(room)
 			(*rooms)[room] = *newRoom
-			go newRoom.RunRoom()
-			newRoom.Register <- socket
-			defer func() {
-				newRoom.Unregister <- socket
+			go func() {
+				defer func() {
+					fmt.Printf("Room %v is being closed\n", (*newRoom).Name)
+					newRoom.Unregister <- socket
+					wg.Done()
+				}()
+				newRoom.RunRoom(in)
 			}()
+			newRoom.Register <- socket
 		}
 	}
-	wg.Wait()
-
 	defer func() {
-		fmt.Printf("%v: %v", color.GreenString("Ended join rooms for socket"), socket.Username)
+		fmt.Printf("%v: %v\n", color.GreenString("Ended join rooms for socket"), socket.Username)
 	}()
+
+	wg.Wait()
 
 }
 
