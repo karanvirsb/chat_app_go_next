@@ -36,8 +36,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 
 	done := make(chan bool)
 	defer func() {
-		Connections.RemoveConnection(socket)
-		Connections.NotifyUsersOfLeave(socket)
+		fmt.Printf("Ending capture connection")
 	}()
 
 	for {
@@ -48,6 +47,8 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			fmt.Printf("\nJson Message Error: %v\n", err)
 			if strings.Contains(err.Error(), "close") || strings.Contains(err.Error(), "RSV") {
 				done <- true
+				go Connections.RemoveConnection(socket)
+				go Connections.NotifyUsersOfLeave(socket)
 				break
 			}
 			continue
@@ -58,6 +59,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		switch jsonMessage.EventName {
 		case "join_room":
 			message := make(chan *Socket)
+
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
@@ -65,19 +67,19 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			}()
 			socket := <-message
 
-			wg.Add(2)
+			wg.Add(1)
 			go func() {
 				defer wg.Done()
 				Connections.NotifyUsersOfConnectedUser(socket, nil)
 			}()
 
-			users := GetUsers(socket, Connections)
+			users := Connections.GetUsers()
 			msg, err := json.Marshal(Message[MessageConnectedUsers]{EventName: "connected_users", Data: MessageConnectedUsers{Users: users}})
 			if err != nil {
 				fmt.Printf("connected users error: %v", err)
 			}
 
-			wg.Add(3)
+			wg.Add(1)
 			go func() {
 				defer wg.Done()
 				socket.writeJSON(string(msg), nil)
@@ -93,23 +95,16 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 				err := socket.Conn.WriteJSON(string(msg))
 				if err != nil {
 					fmt.Printf("\nError while sending message: %v\n", err)
-					// printBuffer()
 					continue
 				}
 			}
 		default:
 			socket.Conn.WriteMessage(1, []byte("Error: That event does not exist"))
 		}
-		// printBuffer()
+
 	}
-	// wg.Done()
 	wg.Wait()
 }
-
-// func printBuffer() {
-// 	fmt.Println(&buf)
-// 	buf.Reset()
-// }
 
 func DoesRoomExist(rooms *map[string]Room, roomName string) *Room {
 	r, ok := (*rooms)[roomName]
@@ -138,17 +133,17 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out 
 	out <- socket
 	close(out)
 	// add room to socket and add socket to rooms map
-	wg.Add(len(msg.Data.Rooms))
+
 	for _, room := range msg.Data.Rooms {
 
 		if foundRoom := DoesRoomExist(rooms, room); foundRoom != nil {
-
-			fmt.Printf("%v: %v\n", color.BlueString("Found Room"), room)
+			wg.Add(1)
 			go func() {
 				defer func() {
 					wg.Done()
 					foundRoom.Unregister <- socket
-					fmt.Printf("Ending found room %v", (*foundRoom).Name)
+					fmt.Printf("**Ending found room %v\n", (*foundRoom).Name)
+					in <- true
 				}()
 				foundRoom.RunRoom(in)
 			}()
@@ -157,11 +152,13 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out 
 			fmt.Printf("%v: %v\n", color.BlueString("Created New Room"), room)
 			newRoom := NewRoom(room)
 			(*rooms)[room] = *newRoom
+			wg.Add(1)
 			go func() {
 				defer func() {
-					fmt.Printf("Room %v is being closed\n", (*newRoom).Name)
+					fmt.Printf("**Ending new room %v\n", (*newRoom).Name)
 					newRoom.Unregister <- socket
 					wg.Done()
+					in <- true
 				}()
 				newRoom.RunRoom(in)
 			}()
@@ -179,17 +176,4 @@ func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out 
 type User struct {
 	Username string `json:"username"`
 	Id       string `json:"id"`
-}
-
-func GetUsers(s *Socket, connections *Connections) []User {
-	users := make([]User, len(connections.Conns))
-
-	for _, socket := range connections.Conns {
-		if len(socket.Id) == 0 {
-			continue
-		}
-		users = append(users, User{Id: socket.Id, Username: socket.Username})
-	}
-
-	return users
 }
