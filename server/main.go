@@ -61,7 +61,10 @@ func main() {
 		if err != nil {
 			fmt.Printf("Error web socket: %v", err)
 		}
-		defer conn.Close()
+		defer func() {
+			conn.Close()
+			fmt.Println("****Connection closed***")
+		}()
 		// var vars = mux.Vars(r)
 		// room := vars["room"]
 
@@ -74,12 +77,11 @@ func main() {
 		connections.AddConnection(&socket)
 		fmt.Printf("socket connected: %v\n", socket.Conn.RemoteAddr())
 		wg.Add(1)
-		go websockets.CaptureSocketEvents(&socket, &connections, &rooms)
-		wg.Wait()
-		defer func() {
-
-			fmt.Println("****Connection closed***")
+		go func() {
+			defer wg.Done()
+			websockets.CaptureSocketEvents(&socket, &connections, &rooms)
 		}()
+		wg.Wait()
 
 	})
 	router.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
