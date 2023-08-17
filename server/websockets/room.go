@@ -23,7 +23,8 @@ func NewRoom(name string) *Room {
 	}
 }
 
-func (room *Room) RunRoom() {
+func (room *Room) RunRoom(in chan bool) {
+out:
 	for {
 		select {
 		case socket := <-room.Register:
@@ -39,8 +40,13 @@ func (room *Room) RunRoom() {
 			for s := range room.Sockets {
 				s.writeJSON(string(message), nil)
 			}
+		case done := <-in:
+			if done {
+				fmt.Printf("Ending running room %v\n", room.Name)
+				break out
+			}
 		}
-
+		fmt.Printf("Still running room %v\n", room.Name)
 	}
 }
 
