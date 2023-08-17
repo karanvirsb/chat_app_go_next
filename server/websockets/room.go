@@ -42,11 +42,9 @@ out:
 			}
 		case done := <-in:
 			if done {
-				fmt.Printf("Ending running room %v\n", room.Name)
 				break out
 			}
 		}
-		fmt.Printf("Still running room %v\n", room.Name)
 	}
 }
 
