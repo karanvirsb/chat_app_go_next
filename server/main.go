@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	"github.com/rs/cors"
 )
 
 var allowedOrigins []string = []string{"http://localhost:3000", "*"}
@@ -51,10 +52,15 @@ type User struct {
 }
 
 func main() {
-
 	router := mux.NewRouter()
-
 	wg := sync.WaitGroup{}
+
+	c := cors.New(cors.Options{
+		AllowedOrigins:   allowedOrigins,
+		AllowCredentials: true,
+		// Enable Debugging for testing, consider disabling in production
+		Debug: true,
+	})
 
 	router.HandleFunc("/socket", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
@@ -134,6 +140,8 @@ func main() {
 		} else {
 			json.NewEncoder(w).Encode(MessageResponse{Success: true})
 		}
-	})
-	http.ListenAndServe(":8000", router)
+	}).Methods("POST")
+
+	handler := c.Handler(router)
+	http.ListenAndServe(":8000", handler)
 }
