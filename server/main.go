@@ -100,5 +100,38 @@ func main() {
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Server request")
 	})
+
+	router.HandleFunc("/check/username", func(w http.ResponseWriter, r *http.Request) {
+		type MessageResponse struct {
+			Success bool   `json:"success"`
+			Error   string `json:"error,omitempty"`
+		}
+		type RequestBody struct {
+			Username string `json:"username"`
+		}
+		var b RequestBody
+		err := json.NewDecoder(r.Body).Decode(&b)
+		if err != nil {
+			fmt.Printf("Error checking name %v\n", err)
+		}
+
+		foundUsername := false
+
+		for _, conn := range connections.Conns {
+			if conn.Username == b.Username {
+				foundUsername = true
+				break
+			}
+		}
+
+		if foundUsername {
+			w.WriteHeader(http.StatusAccepted)
+
+			json.NewEncoder(w).Encode(MessageResponse{Success: false, Error: "Username already exists"})
+			return
+		} else {
+			json.NewEncoder(w).Encode(MessageResponse{Success: true})
+		}
+	})
 	http.ListenAndServe(":8000", router)
 }
