@@ -4,7 +4,12 @@ import { useChatStore } from "@/store/GoChatStore";
 import { Message } from "@/types/messages/messageTypes";
 import React, { useEffect } from "react";
 
-export function Members() {
+type Props = {
+  usersOpen: boolean;
+  toggleUsers: () => void;
+};
+
+export function Members({ toggleUsers, usersOpen }: Props) {
   const users = useChatStore((state) => state.users);
   const setUsers = useChatStore((state) => state.setUsers);
 
@@ -37,7 +42,26 @@ export function Members() {
 
   return (
     <div className="px-2 bg-brand lg:w-[300px] md:w-[250px] sm:fixed sm:inset-0 md:relative">
-      <h1 className="text-[26px] font-semibold text-center">Online Users</h1>
+      <div className="flex justify-center items-center gap-4">
+        <h1 className="text-[26px] font-semibold">Online Users</h1>
+        {usersOpen ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6 hidden sm:block"
+            onClick={toggleUsers}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        ) : null}
+      </div>
       {users?.map((user) => {
         if (user.id.length !== 0) {
           return (
