@@ -71,7 +71,7 @@ export function Chat() {
   const { sendJsonMessage } = websocketHook;
 
   return (
-    <div className="h-full max-h-screen flex flex-col gap-4 py-2">
+    <div className="h-full max-h-screen flex flex-col gap-4 py-2 flex-grow">
       <section className="flex-grow overflow-y-auto p-2 outline outline-[1px] outline-gray-200 rounded-md">
         {messageHistory[room.name]?.map((msg, index) => {
           if (isUserMessage(msg) && msg.eventName === "send_message_to_room") {
