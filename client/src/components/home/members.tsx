@@ -31,7 +31,7 @@ export function Members() {
     }
 
     return () => {
-      eventEmitter.off("members", membersHandler);
+      // eventEmitter.off("members", membersHandler);
     };
   }, [setUsers, users]);
 
