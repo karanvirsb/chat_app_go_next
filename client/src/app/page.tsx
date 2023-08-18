@@ -24,7 +24,9 @@ export default function Home() {
         />
         <Chat></Chat>
       </div>
-      {usersOpen ? <Members></Members> : null}
+      {usersOpen ? (
+        <Members toggleUsers={toggleUsers} usersOpen={usersOpen}></Members>
+      ) : null}
     </main>
   );
 
