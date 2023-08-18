@@ -113,6 +113,8 @@ func main() {
 		err := json.NewDecoder(r.Body).Decode(&b)
 		if err != nil {
 			fmt.Printf("Error checking name %v\n", err)
+			json.NewEncoder(w).Encode(MessageResponse{Success: false, Error: "Server Error: Bad Request"})
+			return
 		}
 
 		foundUsername := false
