@@ -1,19 +1,12 @@
 "use client";
-import { useWebSocketContext } from "@/context/WebSocketContext";
 import eventEmitter from "@/lib/eventEmitter";
 import { useChatStore } from "@/store/GoChatStore";
-import { isMessage } from "@/types/messages/isMessage";
-import { Message, Users } from "@/types/messages/messageTypes";
-import React, { useEffect, useState } from "react";
+import { Message } from "@/types/messages/messageTypes";
+import React, { useEffect } from "react";
 
 export function Members() {
-  // fetch members from server
-  // const users = getUsers();
-  // listen to events on updating the members
-  // const [users, setUsers] = useState<Users>([]);
   const users = useChatStore((state) => state.users);
   const setUsers = useChatStore((state) => state.setUsers);
-  // const { websocketHook } = useWebSocketContext();
 
   // useEffect(() => {
   //   if (websocketHook === null) return;
