@@ -1,5 +1,4 @@
 "use client";
-import { rooms } from "@/app/page";
 import React from "react";
 import { Button } from "../ui/button";
 import { useChatStore } from "@/store/GoChatStore";
