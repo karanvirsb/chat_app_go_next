@@ -2,11 +2,13 @@
 import React from "react";
 import { Button } from "../ui/button";
 import { useChatStore } from "@/store/GoChatStore";
+import { useAuthContext } from "@/context/AuthContext";
 
 export function Sidebar() {
   const rooms = useChatStore((state) => state.rooms);
   const setActiveRoom = useChatStore((state) => state.setActiveRoom);
   const setNotification = useChatStore((state) => state.setNotification);
+  const { updateSession } = useAuthContext();
 
   return (
     <div className="px-2 bg-brand">
@@ -33,6 +35,14 @@ export function Sidebar() {
           );
         })}
       </div>
+      <Button
+        variant="destructive"
+        onClick={() => {
+          updateSession({ username: "" });
+        }}
+      >
+        Logout
+      </Button>
     </div>
   );
 }
