@@ -9,9 +9,13 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(true);
   const [usersOpen, setUsersOpen] = useState(true);
   return (
-    <main className="grid sm:grid-cols-1 md:grid-cols-[1fr_4fr_1fr] gap-4 min-h-screen">
-      <Sidebar></Sidebar>
-      <div className="flex flex-col">
+    <main
+      className={`flex gap-4 min-h-screen ${!menuOpen && "pl-2"} ${
+        !usersOpen && "pr-2"
+      }`}
+    >
+      {menuOpen ? <Sidebar></Sidebar> : null}
+      <div className="flex flex-col flex-grow">
         <Topbar
           menuOpen={menuOpen}
           usersOpen={usersOpen}
@@ -20,7 +24,7 @@ export default function Home() {
         />
         <Chat></Chat>
       </div>
-      <Members></Members>
+      {usersOpen ? <Members></Members> : null}
     </main>
   );
 
