@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuthContext } from "@/context/AuthContext";
+import { handleCheckUsername } from "@/handlers/checkUsernameHandler";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -52,9 +53,16 @@ export default function Auth() {
     </div>
   );
 
-  function handleOnSubmit(data: Inputs) {
+  async function handleOnSubmit(data: Inputs) {
     if (data.username.length < 3) {
       setUsernameErr("Username must be 3 characters long.");
+      return;
+    }
+
+    const res = await handleCheckUsername(data.username);
+
+    if (!res.success) {
+      setUsernameErr(res.error);
       return;
     }
     setUsernameErr("");
