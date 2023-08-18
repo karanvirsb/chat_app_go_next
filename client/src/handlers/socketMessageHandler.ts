@@ -1,4 +1,5 @@
 import { Message } from "@/types/messages/messageTypes";
+import eventEmitter from "@/lib/eventEmitter";
 
 export function emitEvents(message: Message) {
   switch (message.eventName) {
@@ -25,5 +26,9 @@ export function emitEvents(message: Message) {
   }
 }
 
-function emitEventToMembers(message: Message) {}
-function emitEventToChat(message: Message) {}
+function emitEventToMembers(message: Message) {
+  eventEmitter.emit("members", message);
+}
+function emitEventToChat(message: Message) {
+  eventEmitter.emit("chat", message);
+}
