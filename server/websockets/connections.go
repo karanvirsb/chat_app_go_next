@@ -11,6 +11,11 @@ type Connections struct {
 	Conns []*Socket
 }
 
+type UserStatusMessage struct {
+	Id       string `json:"id"`
+	Username string `json:"username"`
+}
+
 func (c *Connections) AddConnection(conn *Socket) {
 	c.Mu.Lock()
 	defer c.Mu.Unlock()
@@ -30,11 +35,6 @@ func (c *Connections) RemoveConnection(conn *Socket) {
 	}
 
 	c.Conns = append(c.Conns[:index], c.Conns[index+1:]...)
-}
-
-type UserStatusMessage struct {
-	Id       string `json:"id"`
-	Username string `json:"username"`
 }
 
 func (c *Connections) NotifyUsersOfLeave(s *Socket) {
