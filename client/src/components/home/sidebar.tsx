@@ -11,7 +11,7 @@ export function Sidebar() {
   const { updateSession } = useAuthContext();
 
   return (
-    <div className="px-2 bg-brand flex flex-col flex-grow">
+    <div className="px-2 bg-brand flex flex-col min-w-[100px] w-[75vw] max-w-[300px]">
       <h1 className="text-[32px] font-semibold text-center">Go Chat</h1>
       <div className="flex flex-col gap-4 mt-4">
         {rooms.map((room) => {

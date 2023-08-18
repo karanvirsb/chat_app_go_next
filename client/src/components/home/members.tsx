@@ -36,7 +36,7 @@ export function Members() {
   }, [setUsers, users]);
 
   return (
-    <div className="px-2 bg-brand">
+    <div className="px-2 bg-brand min-w-[150px] w-[75vw] max-w-[300px]">
       <h1 className="text-[26px] font-semibold text-center">Online Users</h1>
       {users?.map((user) => {
         if (user.id.length !== 0) {
