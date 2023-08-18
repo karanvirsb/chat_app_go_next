@@ -1,19 +1,11 @@
 import { useRouter } from "next/navigation";
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { createContext, useContext, useEffect, useMemo } from "react";
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 import { useAuthContext } from "./AuthContext";
 import { Message } from "@/types/messages/messageTypes";
 import { useChatStore } from "@/store/GoChatStore";
-import eventEmitter from "@/lib/eventEmitter";
+import { emitEvents } from "@/handlers/socketMessageHandler";
 
 export interface IWebSocketContext {
   websocketHook: WebSocketHook<JsonValue | null, MessageEvent<any> | null>;
@@ -82,9 +74,7 @@ export function WebSocketContextProvider({
   useEffect(() => {
     if (lastJsonMessage === null) return;
     const jsonMessage = JSON.parse(lastJsonMessage as any) as Message;
-    if (jsonMessage.eventName === "connected_users") {
-      eventEmitter.emit("members", jsonMessage);
-    }
+    emitEvents(jsonMessage);
   }, [lastJsonMessage]);
 
   const websocketHook = {
