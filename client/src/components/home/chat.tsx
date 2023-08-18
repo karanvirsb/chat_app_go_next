@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Textarea } from "../ui/textarea";
 import { isUserMessage } from "@/types/messages/isUserMessage";
 import useSessionStorage from "@/hooks/useSessionStorage";
 import { useWebSocketContext } from "@/context/WebSocketContext";
 import { useChatStore } from "@/store/GoChatStore";
 import { Room } from "@/store/room/RoomStore";
-import { isMessage } from "@/types/messages/isMessage";
 import { Message } from "@/types/messages/messageTypes";
+import eventEmitter from "@/lib/eventEmitter";
 
 export interface MessageHistory {
   [key: string]: Array<Message | string>;
@@ -18,36 +18,23 @@ export function Chat() {
   const { websocketHook } = useWebSocketContext();
   const { storage: session } = useSessionStorage();
   const rooms = useChatStore((state) => state.rooms);
-  const room = rooms.find((r) => r.visible) as Room;
+  const room = useMemo(() => rooms.find((r) => r.visible) as Room, [rooms]);
   const setNotification = useChatStore((state) => state.setNotification);
   const [messageHistory, setMessageHistory] = useState<MessageHistory>({});
 
   const message = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
-    const { getWebSocket } = websocketHook;
-    const websocket = getWebSocket();
-    if (websocket === null) return;
-
-    websocket.addEventListener("message", listener);
-
-    function listener(e: any) {
-      const jsonMessage = JSON.parse(JSON.parse((e as any).data));
-      console.log(jsonMessage);
-      // if (!isMessage(jsonMessage)) return;
-      if (!isMessage(jsonMessage)) return;
-      // add type guard
+    eventEmitter.on("chat", chatHandler);
+    function chatHandler(jsonMessage: Message) {
       if (jsonMessage.eventName === "send_message_to_room") {
         setMessageHistory((prev) => {
-          if (jsonMessage.room !== undefined) {
-            let prevRoom = prev[jsonMessage.room] ?? [];
-            prevRoom.push(jsonMessage as Message);
-            return {
-              ...prev,
-              [jsonMessage.room]: prevRoom,
-            };
-          }
-          return prev;
+          let prevRoom = prev[jsonMessage.room] ?? [];
+          prevRoom.push(jsonMessage as Message);
+          return {
+            ...prev,
+            [jsonMessage.room]: prevRoom,
+          };
         });
 
         // check if room is visible
@@ -76,13 +63,10 @@ export function Chat() {
         });
       }
     }
-
     return () => {
-      websocket.removeEventListener("message", listener);
+      eventEmitter.off("chat", chatHandler);
     };
-  }, [websocketHook.getWebSocket(), room, setNotification]);
-
-  if (websocketHook === null) return <div>Loading...</div>;
+  }, [setMessageHistory, room, setNotification, rooms]);
 
   const { sendJsonMessage } = websocketHook;
 
