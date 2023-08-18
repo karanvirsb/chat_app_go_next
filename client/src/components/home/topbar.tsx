@@ -1,10 +1,18 @@
-"use client";
+import React from "react";
 
-import React, { useState } from "react";
+type Props = {
+  menuOpen: boolean;
+  usersOpen: boolean;
+  toggleMenu: () => void;
+  toggleUsers: () => void;
+};
 
-export default function Topbar() {
-  const [menuOpen, setMenuOpen] = useState(true);
-  const [usersOpen, setUsersOpen] = useState(true);
+export default function Topbar({
+  menuOpen,
+  toggleMenu,
+  toggleUsers,
+  usersOpen,
+}: Props) {
   return (
     <div className="flex justify-between py-2">
       {menuOpen ? (
@@ -49,11 +57,4 @@ export default function Topbar() {
       </svg>
     </div>
   );
-
-  function toggleMenu() {
-    setMenuOpen((prev) => !prev);
-  }
-  function toggleUsers() {
-    setUsersOpen((prev) => !prev);
-  }
 }
