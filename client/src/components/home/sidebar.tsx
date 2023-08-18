@@ -11,7 +11,7 @@ export function Sidebar() {
   const { updateSession } = useAuthContext();
 
   return (
-    <div className="px-2 bg-brand">
+    <div className="px-2 bg-brand flex flex-col flex-grow">
       <h1 className="text-[32px] font-semibold text-center">Go Chat</h1>
       <div className="flex flex-col gap-4 mt-4">
         {rooms.map((room) => {
@@ -40,6 +40,7 @@ export function Sidebar() {
         onClick={() => {
           updateSession({ username: "" });
         }}
+        className="mt-auto mb-2"
       >
         Logout
       </Button>
