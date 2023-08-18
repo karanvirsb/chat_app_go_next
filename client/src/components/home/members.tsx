@@ -9,7 +9,9 @@ export function Members() {
   const setUsers = useChatStore((state) => state.setUsers);
 
   useEffect(() => {
-    eventEmitter.on("members", (jsonMessage: Message) => {
+    eventEmitter.on("members", membersHandler);
+
+    function membersHandler(jsonMessage: Message) {
       if (jsonMessage.eventName === "connected_users") {
         setUsers(jsonMessage.data.users);
       } else if (jsonMessage.eventName === "user_disconnected") {
@@ -26,7 +28,11 @@ export function Members() {
 
         setUsers(newUsers);
       }
-    });
+    }
+
+    return () => {
+      eventEmitter.off("members", membersHandler);
+    };
   }, [setUsers, users]);
 
   return (
