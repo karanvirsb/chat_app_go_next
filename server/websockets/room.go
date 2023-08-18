@@ -57,6 +57,9 @@ func newUsernotification(room *Room, socket *Socket) {
 		return
 	}
 	for s := range room.Sockets {
+		if s.Id == socket.Id {
+			continue
+		}
 		s.writeJSON(string(jsonMessage), nil)
 	}
 }
@@ -69,6 +72,9 @@ func userLeftNotification(room *Room, socket *Socket) {
 		return
 	}
 	for s := range room.Sockets {
+		if s.Id == socket.Id {
+			continue
+		}
 		s.writeJSON(string(jsonMessage), nil)
 	}
 }
