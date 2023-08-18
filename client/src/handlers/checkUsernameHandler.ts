@@ -1,5 +1,3 @@
-"use server";
-
 type ReturnData = { success: true } | { success: false; error: string };
 
 export async function handleCheckUsername(
