@@ -69,7 +69,7 @@ export function WebSocketContextProvider({
         rooms: roomNames,
       },
     } satisfies Message);
-  }, [getWebSocket, session, sendJsonMessage]);
+  }, [session, sendJsonMessage]);
 
   useEffect(() => {
     if (lastJsonMessage === null) return;
