@@ -46,6 +46,9 @@ func (c *Connections) NotifyUsersOfLeave(s *Socket) {
 		return
 	}
 	for _, socket := range c.Conns {
+		if socket.Id == s.Id {
+			continue
+		}
 		socket.writeJSON(string(leftMessage), nil)
 	}
 }
@@ -69,13 +72,8 @@ func (c *Connections) GetUsers() []User {
 func (c *Connections) NotifyUsersOfConnectedUser(s *Socket, cb func()) {
 	fmt.Printf("Sending Notification to Connections: %v\n", s.Username)
 	c.Mu.Lock()
-	defer func() {
-		c.Mu.Unlock()
-		if cb == nil {
-			return
-		}
-		cb()
-	}()
+	defer c.Mu.Unlock()
+
 	joinMessage, err := json.Marshal(Message[UserStatusMessage]{Data: UserStatusMessage{Id: s.Id, Username: s.Username}, EventName: "user_connected"})
 	if err != nil {
 		fmt.Printf("User Connected Message Error: %v", err)
@@ -83,6 +81,9 @@ func (c *Connections) NotifyUsersOfConnectedUser(s *Socket, cb func()) {
 	}
 
 	for _, socket := range c.Conns {
+		if socket.Id == s.Id {
+			continue
+		}
 		fmt.Printf("Sending to connection: %v\n", socket.Username)
 		err = socket.writeJSON(string(joinMessage), nil)
 		if err != nil {
