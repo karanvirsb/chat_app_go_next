@@ -14,7 +14,9 @@ export default function Home() {
         !usersOpen && "pr-2"
       }`}
     >
-      {menuOpen ? <Sidebar></Sidebar> : null}
+      {menuOpen ? (
+        <Sidebar toggleMenu={toggleMenu} menuOpen={menuOpen}></Sidebar>
+      ) : null}
       <div className="flex flex-col flex-grow">
         <Topbar
           menuOpen={menuOpen}
