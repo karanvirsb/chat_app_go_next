@@ -53,7 +53,6 @@ type User struct {
 
 func main() {
 	router := mux.NewRouter()
-	wg := sync.WaitGroup{}
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   allowedOrigins,
