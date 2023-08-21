@@ -62,19 +62,7 @@ func main() {
 	})
 
 	router.HandleFunc("/socket", socketHandler)
-	router.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
-		users := make([]User, len(connections.Conns))
-		for i, conn := range connections.Conns {
-			if len(conn.Username) == 0 {
-				continue
-			}
-			users[i] = User{Username: conn.Username, Id: conn.Id}
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(users)
-	})
+	router.HandleFunc("/users", usersRequestHandler)
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Server request")
 	})
@@ -145,4 +133,18 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 	wg.Wait()
 
+}
+
+func usersRequestHandler(w http.ResponseWriter, r *http.Request) {
+	users := make([]User, len(connections.Conns))
+	for i, conn := range connections.Conns {
+		if len(conn.Username) == 0 {
+			continue
+		}
+		users[i] = User{Username: conn.Username, Id: conn.Id}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(users)
 }
