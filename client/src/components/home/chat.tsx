@@ -15,7 +15,7 @@ export interface MessageHistory {
 }
 
 export function Chat() {
-  const { websocketHook } = useWebSocketContext();
+  const { sendJsonMessage } = useWebSocketContext();
   const { storage: session } = useSessionStorage();
   const rooms = useChatStore((state) => state.rooms);
   const room = useMemo(() => rooms.find((r) => r.visible) as Room, [rooms]);
@@ -67,8 +67,6 @@ export function Chat() {
       eventEmitter.off("chat", chatHandler);
     };
   }, [setMessageHistory, room, setNotification, rooms]);
-
-  const { sendJsonMessage } = websocketHook;
 
   return (
     <div className="flex h-full max-h-screen flex-grow flex-col gap-4 py-2">
