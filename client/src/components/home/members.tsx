@@ -1,4 +1,5 @@
 "use client";
+
 import eventEmitter from "@/lib/eventEmitter";
 import { useChatStore } from "@/store/GoChatStore";
 import { Message } from "@/types/messages/messageTypes";
@@ -41,8 +42,8 @@ export function Members({ toggleUsers, usersOpen }: Props) {
   }, [setUsers, users]);
 
   return (
-    <div className="px-2 bg-brand lg:w-[300px] md:w-[250px] sm:fixed sm:inset-0 md:relative">
-      <div className="flex justify-center items-center gap-4">
+    <div className="bg-brand px-2 sm:fixed sm:inset-0 md:relative md:w-[250px] lg:w-[300px]">
+      <div className="flex items-center justify-center gap-4">
         <h1 className="text-[26px] font-semibold">Online Users</h1>
         {usersOpen ? (
           <svg
@@ -51,7 +52,7 @@ export function Members({ toggleUsers, usersOpen }: Props) {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-6 h-6 md:hidden sm:block"
+            className="h-6 w-6 sm:block md:hidden"
             onClick={toggleUsers}
           >
             <path
@@ -66,11 +67,11 @@ export function Members({ toggleUsers, usersOpen }: Props) {
         if (user.id.length !== 0) {
           return (
             <div
-              className="rounded-md px-2 py-1 flex justify-center items-center gap-4"
+              className="flex items-center justify-center gap-4 rounded-md px-2 py-1"
               key={user.id}
             >
               {user.username}
-              <span className="w-4 h-4 bg-green-400 rounded-full"></span>
+              <span className="h-4 w-4 rounded-full bg-green-400"></span>
             </div>
           );
         }

@@ -71,13 +71,13 @@ export function Chat() {
   const { sendJsonMessage } = websocketHook;
 
   return (
-    <div className="h-full max-h-screen flex flex-col gap-4 py-2 flex-grow">
-      <section className="flex-grow overflow-y-auto p-2 outline outline-[1px] outline-gray-200 rounded-md">
+    <div className="flex h-full max-h-screen flex-grow flex-col gap-4 py-2">
+      <section className="flex-grow overflow-y-auto rounded-md p-2 outline outline-[1px] outline-gray-200">
         {messageHistory[room.name]?.map((msg, index) => {
           if (isUserMessage(msg) && msg.eventName === "send_message_to_room") {
             const date = new Date(msg?.data?.time ?? Date.now());
             return (
-              <div key={index} className="flex flex-col gap-4 my-8">
+              <div key={index} className="my-8 flex flex-col gap-4">
                 <div className="flex gap-6">
                   <span className="text-brand-light-text">
                     {msg?.data?.username}
