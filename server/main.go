@@ -63,44 +63,11 @@ func main() {
 
 	router.HandleFunc("/socket", socketHandler)
 	router.HandleFunc("/users", usersRequestHandler)
+	router.HandleFunc("/check/username", checkUsernameRequestHandler).Methods("POST")
+
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Server request")
 	})
-
-	router.HandleFunc("/check/username", func(w http.ResponseWriter, r *http.Request) {
-		type MessageResponse struct {
-			Success bool   `json:"success"`
-			Error   string `json:"error,omitempty"`
-		}
-		type RequestBody struct {
-			Username string `json:"username"`
-		}
-		var b RequestBody
-		err := json.NewDecoder(r.Body).Decode(&b)
-		if err != nil {
-			fmt.Printf("Error checking name %v\n", err)
-			json.NewEncoder(w).Encode(MessageResponse{Success: false, Error: "Server Error: Bad Request"})
-			return
-		}
-
-		foundUsername := false
-
-		for _, conn := range connections.Conns {
-			if conn.Username == b.Username {
-				foundUsername = true
-				break
-			}
-		}
-
-		if foundUsername {
-			w.WriteHeader(http.StatusAccepted)
-
-			json.NewEncoder(w).Encode(MessageResponse{Success: false, Error: "Username already exists"})
-			return
-		} else {
-			json.NewEncoder(w).Encode(MessageResponse{Success: true})
-		}
-	}).Methods("POST")
 
 	handler := c.Handler(router)
 	http.ListenAndServe(":8000", handler)
@@ -147,4 +114,38 @@ func usersRequestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(users)
+}
+func checkUsernameRequestHandler(w http.ResponseWriter, r *http.Request) {
+	type MessageResponse struct {
+		Success bool   `json:"success"`
+		Error   string `json:"error,omitempty"`
+	}
+	type RequestBody struct {
+		Username string `json:"username"`
+	}
+	var b RequestBody
+	err := json.NewDecoder(r.Body).Decode(&b)
+	if err != nil {
+		fmt.Printf("Error checking name %v\n", err)
+		json.NewEncoder(w).Encode(MessageResponse{Success: false, Error: "Server Error: Bad Request"})
+		return
+	}
+
+	foundUsername := false
+
+	for _, conn := range connections.Conns {
+		if conn.Username == b.Username {
+			foundUsername = true
+			break
+		}
+	}
+
+	if foundUsername {
+		w.WriteHeader(http.StatusAccepted)
+
+		json.NewEncoder(w).Encode(MessageResponse{Success: false, Error: "Username already exists"})
+		return
+	} else {
+		json.NewEncoder(w).Encode(MessageResponse{Success: true})
+	}
 }
