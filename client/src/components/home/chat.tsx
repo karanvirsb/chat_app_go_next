@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
 import { Textarea } from "../ui/textarea";
-import { isUserMessage } from "@/types/messages/isUserMessage";
-import useSessionStorage from "@/hooks/useSessionStorage";
 import { useWebSocketContext } from "@/context/WebSocketContext";
+import useSessionStorage from "@/hooks/useSessionStorage";
+import eventEmitter from "@/lib/eventEmitter";
 import { useChatStore } from "@/store/GoChatStore";
 import { Room } from "@/store/room/RoomStore";
+import { isUserMessage } from "@/types/messages/isUserMessage";
 import { Message } from "@/types/messages/messageTypes";
-import eventEmitter from "@/lib/eventEmitter";
+import { useState, useRef, useEffect, useMemo } from "react";
 
 export interface MessageHistory {
   [key: string]: Array<Message | string>;
