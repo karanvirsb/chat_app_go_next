@@ -20,6 +20,5 @@
   "embeddedLanguageFormatting": "auto",
   "vueIndentScriptAndStyle": false,
   "parser": "typescript",
-  "plugins": ["@trivago/prettier-plugin-sort-imports","prettier-plugin-tailwindcss"],
-  "pluginSearchDirs": false
+  "plugins": ["@trivago/prettier-plugin-sort-imports","prettier-plugin-tailwindcss"]
 }
