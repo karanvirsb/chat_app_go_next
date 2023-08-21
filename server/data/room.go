@@ -38,7 +38,7 @@ out:
 			}
 		case message := <-room.Broadcast:
 			for s := range room.Sockets {
-				s.writeJSON(string(message), nil)
+				s.WriteJSON(string(message), nil)
 			}
 		case done := <-in:
 			if done {
@@ -60,7 +60,7 @@ func newUsernotification(room *Room, socket *Socket) {
 		if s.Id == socket.Id {
 			continue
 		}
-		s.writeJSON(string(jsonMessage), nil)
+		s.WriteJSON(string(jsonMessage), nil)
 	}
 }
 func userLeftNotification(room *Room, socket *Socket) {
@@ -75,6 +75,6 @@ func userLeftNotification(room *Room, socket *Socket) {
 		if s.Id == socket.Id {
 			continue
 		}
-		s.writeJSON(string(jsonMessage), nil)
+		s.WriteJSON(string(jsonMessage), nil)
 	}
 }
