@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var allowedOrigins []string = []string{"http://localhost:3000", "*"}
+var AllowedOrigins []string = []string{"http://localhost:3000", "*"}
 
 var upgrader = websocket.Upgrader{
 	EnableCompression: true,
@@ -18,7 +18,7 @@ var upgrader = websocket.Upgrader{
 		found := false
 		origin := r.Header.Get("Origin")
 
-		for _, o := range allowedOrigins {
+		for _, o := range AllowedOrigins {
 			if o == origin {
 				found = true
 				break
