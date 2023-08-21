@@ -77,17 +77,17 @@ export function WebSocketContextProvider({
     emitEvents(jsonMessage);
   }, [lastJsonMessage]);
 
-  const websocketHook = {
-    lastJsonMessage,
-    readyState,
-    sendJsonMessage,
-    getWebSocket,
-    lastMessage,
-    sendMessage,
-  };
-
   return (
-    <WebSocketContext.Provider value={{ websocketHook }}>
+    <WebSocketContext.Provider
+      value={{
+        getWebSocket,
+        lastJsonMessage,
+        lastMessage,
+        readyState,
+        sendJsonMessage,
+        sendMessage,
+      }}
+    >
       {children}
     </WebSocketContext.Provider>
   );
