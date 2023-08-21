@@ -62,34 +62,7 @@ func main() {
 		Debug: true,
 	})
 
-	router.HandleFunc("/socket", func(w http.ResponseWriter, r *http.Request) {
-		conn, err := upgrader.Upgrade(w, r, nil)
-		if err != nil {
-			fmt.Printf("Error web socket: %v", err)
-		}
-		defer func() {
-			conn.Close()
-			fmt.Println("****Connection closed***")
-		}()
-		// var vars = mux.Vars(r)
-		// room := vars["room"]
-
-		// creating socket
-		socket := websockets.Socket{
-			Id:   generateId(),
-			Conn: conn,
-		}
-
-		connections.AddConnection(&socket)
-		fmt.Printf("socket connected: %v\n", socket.Conn.RemoteAddr())
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			websockets.CaptureSocketEvents(&socket, &connections, &rooms)
-		}()
-		wg.Wait()
-
-	})
+	router.HandleFunc("/socket", socketHandler)
 	router.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
 		users := make([]User, len(connections.Conns))
 		for i, conn := range connections.Conns {
@@ -144,4 +117,33 @@ func main() {
 
 	handler := c.Handler(router)
 	http.ListenAndServe(":8000", handler)
+}
+func socketHandler(w http.ResponseWriter, r *http.Request) {
+	wg := sync.WaitGroup{}
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		fmt.Printf("Error web socket: %v", err)
+	}
+	defer func() {
+		conn.Close()
+		fmt.Println("****Connection closed***")
+	}()
+	// var vars = mux.Vars(r)
+	// room := vars["room"]
+
+	// creating socket
+	socket := websockets.Socket{
+		Id:   generateId(),
+		Conn: conn,
+	}
+
+	connections.AddConnection(&socket)
+	fmt.Printf("socket connected: %v\n", socket.Conn.RemoteAddr())
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		websockets.CaptureSocketEvents(&socket, &connections, &rooms)
+	}()
+	wg.Wait()
+
 }
