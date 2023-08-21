@@ -38,32 +38,7 @@ func CaptureSocketEvents(socket *data.Socket, Connections *data.Connections, roo
 		fmt.Printf("\nJSON message: %v\n", string(msg))
 		switch jsonMessage.EventName {
 		case "join_room":
-			message := make(chan *data.Socket)
-
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				eventHandlers.JoinRoomEventHandler(socket, rooms, &msg, message, done)
-			}()
-			socket := <-message
-
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				Connections.NotifyUsersOfConnectedUser(socket, nil)
-			}()
-
-			users := Connections.GetUsers()
-			msg, err := json.Marshal(data.Message[data.MessageConnectedUsers]{EventName: "connected_users", Data: data.MessageConnectedUsers{Users: users}})
-			if err != nil {
-				fmt.Printf("connected users error: %v", err)
-			}
-
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				socket.WriteJSON(string(msg), nil)
-			}()
+			joinRoomCase(&wg, socket, rooms, msg, done, Connections)
 
 		case "send_message_to_room":
 			if room, ok := (*rooms)[jsonMessage.Room]; ok {
@@ -84,4 +59,35 @@ func CaptureSocketEvents(socket *data.Socket, Connections *data.Connections, roo
 
 	}
 	wg.Wait()
+}
+
+func joinRoomCase(wg *sync.WaitGroup, socket *data.Socket, rooms *map[string]data.Room, msg []byte, done chan bool, Connections *data.Connections) {
+	message := make(chan *data.Socket)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		eventHandlers.JoinRoomEventHandler(socket, rooms, &msg, message, done)
+	}()
+
+	socketWithUsername := <-message
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		Connections.NotifyUsersOfConnectedUser(socketWithUsername, nil)
+	}()
+
+	users := Connections.GetUsers()
+
+	msg, err := json.Marshal(data.Message[data.MessageConnectedUsers]{EventName: "connected_users", Data: data.MessageConnectedUsers{Users: users}})
+	if err != nil {
+		fmt.Printf("connected users error: %v", err)
+	}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		socketWithUsername.WriteJSON(string(msg), nil)
+	}()
 }
