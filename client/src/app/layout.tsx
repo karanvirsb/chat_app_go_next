@@ -1,10 +1,11 @@
 "use client";
-import { Toaster } from "@/components/ui/toaster";
+
 import "./globals.css";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Toaster } from "@/components/ui/toaster";
 import { AuthContextProvider } from "@/context/AuthContext";
 import { WebSocketContextProvider } from "@/context/WebSocketContext";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"] });
 
