@@ -26,7 +26,7 @@ func main() {
 	router := mux.NewRouter()
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   allowedOrigins,
+		AllowedOrigins:   handler.AllowedOrigins,
 		AllowCredentials: true,
 		// Enable Debugging for testing, consider disabling in production
 		Debug: true,
