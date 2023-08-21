@@ -1,44 +1,15 @@
 package main
 
 import (
+	"chat_app_server/handler"
 	"chat_app_server/websockets"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sync"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 	"github.com/rs/cors"
 )
-
-var allowedOrigins []string = []string{"http://localhost:3000", "*"}
-
-var upgrader = websocket.Upgrader{
-	EnableCompression: true,
-	CheckOrigin: func(r *http.Request) bool {
-		found := false
-		origin := r.Header.Get("Origin")
-
-		for _, o := range allowedOrigins {
-			if o == origin {
-				found = true
-				break
-			}
-			if o == "*" {
-				found = true
-				break
-			}
-		}
-
-		return found
-	},
-}
-
-func generateId() string {
-	return uuid.NewString()
-}
 
 var connections = websockets.Connections{
 	Conns: []*websockets.Socket{},
@@ -61,7 +32,9 @@ func main() {
 		Debug: true,
 	})
 
-	router.HandleFunc("/socket", socketHandler)
+	router.HandleFunc("/socket", func(w http.ResponseWriter, r *http.Request) {
+		handler.SocketHandler(&connections, &rooms, w, r)
+	})
 	router.HandleFunc("/users", usersRequestHandler)
 	router.HandleFunc("/check/username", checkUsernameRequestHandler).Methods("POST")
 
@@ -71,35 +44,6 @@ func main() {
 
 	handler := c.Handler(router)
 	http.ListenAndServe(":8000", handler)
-}
-func socketHandler(w http.ResponseWriter, r *http.Request) {
-	wg := sync.WaitGroup{}
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Printf("Error web socket: %v", err)
-	}
-	defer func() {
-		conn.Close()
-		fmt.Println("****Connection closed***")
-	}()
-	// var vars = mux.Vars(r)
-	// room := vars["room"]
-
-	// creating socket
-	socket := websockets.Socket{
-		Id:   generateId(),
-		Conn: conn,
-	}
-
-	connections.AddConnection(&socket)
-	fmt.Printf("socket connected: %v\n", socket.Conn.RemoteAddr())
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		websockets.CaptureSocketEvents(&socket, &connections, &rooms)
-	}()
-	wg.Wait()
-
 }
 
 func usersRequestHandler(w http.ResponseWriter, r *http.Request) {
