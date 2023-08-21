@@ -16,9 +16,9 @@ export function Sidebar({ toggleMenu, menuOpen }: Props) {
   const { updateSession } = useAuthContext();
 
   return (
-    <div className="px-2 bg-brand flex flex-col lg:w-[300px] md:w-[250px] sm:fixed sm:inset-0 md:relative">
-      <div className="flex justify-center items-center gap-4">
-        <h1 className="text-[32px] font-semibold text-center">Go Chat</h1>
+    <div className="flex flex-col bg-brand px-2 sm:fixed sm:inset-0 md:relative md:w-[250px] lg:w-[300px]">
+      <div className="flex items-center justify-center gap-4">
+        <h1 className="text-center text-[32px] font-semibold">Go Chat</h1>
         {menuOpen ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -26,7 +26,7 @@ export function Sidebar({ toggleMenu, menuOpen }: Props) {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-6 h-6 md:hidden sm:block"
+            className="h-6 w-6 sm:block md:hidden"
             onClick={toggleMenu}
           >
             <path
@@ -37,7 +37,7 @@ export function Sidebar({ toggleMenu, menuOpen }: Props) {
           </svg>
         ) : null}
       </div>
-      <div className="flex flex-col gap-4 mt-4">
+      <div className="mt-4 flex flex-col gap-4">
         {rooms.map((room) => {
           return (
             <Button
@@ -47,7 +47,7 @@ export function Sidebar({ toggleMenu, menuOpen }: Props) {
                 room.visible ? "bg-hover" : "hover:bg-hover"
               } ${
                 room.notifications &&
-                "after:block after:w-4 after:h-4 after:absolute after:-top-1 after:-right-1 after:bg-red-400 after:rounded-full outline outline-1 outline-gray-400"
+                "outline outline-1 outline-gray-400 after:absolute after:-right-1 after:-top-1 after:block after:h-4 after:w-4 after:rounded-full after:bg-red-400"
               }`}
               onClick={() => {
                 setActiveRoom(room.name);
@@ -64,7 +64,7 @@ export function Sidebar({ toggleMenu, menuOpen }: Props) {
         onClick={() => {
           updateSession({ username: "" });
         }}
-        className="mt-auto mb-2"
+        className="mb-2 mt-auto"
       >
         Logout
       </Button>
