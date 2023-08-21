@@ -1,8 +1,8 @@
 package main
 
 import (
+	"chat_app_server/data"
 	"chat_app_server/handler"
-	"chat_app_server/websockets"
 	"fmt"
 	"net/http"
 
@@ -10,11 +10,11 @@ import (
 	"github.com/rs/cors"
 )
 
-var connections = websockets.Connections{
-	Conns: []*websockets.Socket{},
+var connections = data.Connections{
+	Conns: []*data.Socket{},
 }
 
-var rooms = map[string]websockets.Room{}
+var rooms = map[string]data.Room{}
 
 func main() {
 	router := mux.NewRouter()
