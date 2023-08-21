@@ -7,7 +7,7 @@ import (
 )
 
 type ISocket interface {
-	read(*interface{}) (Message[any], error)
+	Read(*interface{}) (Message[any], error)
 }
 
 type Socket struct {
@@ -17,13 +17,13 @@ type Socket struct {
 	mu       sync.Mutex
 }
 
-func (s *Socket) read() (Message[any], error) {
+func (s *Socket) Read() (Message[any], error) {
 	jsonMessage := Message[any]{}
 	err := s.Conn.ReadJSON(&jsonMessage)
 	return jsonMessage, err
 }
 
-func (s *Socket) writeJSON(v interface{}, cb func()) error {
+func (s *Socket) WriteJSON(v interface{}, cb func()) error {
 	s.mu.Lock()
 	defer func() {
 		s.mu.Unlock()
