@@ -1,36 +1,16 @@
 package websockets
 
 import (
+	"chat_app_server/data"
+	"chat_app_server/websockets/eventHandlers"
 	"encoding/json"
 	"fmt"
 	"sync"
 
 	"strings"
-
-	"github.com/fatih/color"
 )
 
-type Message[T any] struct {
-	Data      T      `json:"data,omitempty"`
-	EventName string `json:"eventName,omitempty"`
-	Room      string `json:"room,omitempty"`
-}
-
-type MessageJoinRoom struct {
-	Username string   `json:"username,omitempty"`
-	Rooms    []string `json:"rooms,omitempty"`
-}
-
-type MessageConnectedUsers struct {
-	Users []User `json:"users,omitempty"`
-}
-
-// var (
-// 	buf    bytes.Buffer
-// 	fmt.= log.New(&buf, "capture socket events logger: ", log.Default().Flags())
-// )
-
-func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[string]Room) {
+func CaptureSocketEvents(socket *data.Socket, Connections *data.Connections, rooms *map[string]data.Room) {
 
 	wg := sync.WaitGroup{}
 
@@ -41,7 +21,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 
 	for {
 
-		jsonMessage, err := socket.read()
+		jsonMessage, err := socket.Read()
 
 		if err != nil {
 			fmt.Printf("\nJson Message Error: %v\n", err)
@@ -58,12 +38,12 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 		fmt.Printf("\nJSON message: %v\n", string(msg))
 		switch jsonMessage.EventName {
 		case "join_room":
-			message := make(chan *Socket)
+			message := make(chan *data.Socket)
 
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				joinRoomEvent(socket, rooms, &msg, message, done)
+				eventHandlers.JoinRoomEventHandler(socket, rooms, &msg, message, done)
 			}()
 			socket := <-message
 
@@ -74,7 +54,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			}()
 
 			users := Connections.GetUsers()
-			msg, err := json.Marshal(Message[MessageConnectedUsers]{EventName: "connected_users", Data: MessageConnectedUsers{Users: users}})
+			msg, err := json.Marshal(data.Message[data.MessageConnectedUsers]{EventName: "connected_users", Data: data.MessageConnectedUsers{Users: users}})
 			if err != nil {
 				fmt.Printf("connected users error: %v", err)
 			}
@@ -82,7 +62,7 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				socket.writeJSON(string(msg), nil)
+				socket.WriteJSON(string(msg), nil)
 			}()
 
 		case "send_message_to_room":
@@ -104,76 +84,4 @@ func CaptureSocketEvents(socket *Socket, Connections *Connections, rooms *map[st
 
 	}
 	wg.Wait()
-}
-
-func DoesRoomExist(rooms *map[string]Room, roomName string) *Room {
-	r, ok := (*rooms)[roomName]
-	if !ok {
-		return nil
-	}
-	return &r
-}
-
-func joinRoomEvent(socket *Socket, rooms *map[string]Room, message *[]byte, out chan *Socket, in chan bool) {
-	wg := sync.WaitGroup{}
-	msg := Message[MessageJoinRoom]{}
-	err := json.Unmarshal(*message, &msg)
-
-	if err != nil {
-		fmt.Printf("Error not a json - \n%v\n - \n%v\n", msg, err)
-		if strings.Contains(err.Error(), "close") {
-			return
-		}
-
-	}
-
-	fmt.Printf("Join rooms case: %v\n", msg.Data.Rooms)
-
-	socket.Username = msg.Data.Username
-	out <- socket
-	close(out)
-	// add room to socket and add socket to rooms map
-
-	for _, room := range msg.Data.Rooms {
-
-		if foundRoom := DoesRoomExist(rooms, room); foundRoom != nil {
-			wg.Add(1)
-			go func() {
-				defer func() {
-					wg.Done()
-					foundRoom.Unregister <- socket
-					fmt.Printf("**Ending found room %v\n", (*foundRoom).Name)
-					in <- true
-				}()
-				foundRoom.RunRoom(in)
-			}()
-			foundRoom.Register <- socket
-		} else {
-			fmt.Printf("%v: %v\n", color.BlueString("Created New Room"), room)
-			newRoom := NewRoom(room)
-			(*rooms)[room] = *newRoom
-			wg.Add(1)
-			go func() {
-				defer func() {
-					fmt.Printf("**Ending new room %v\n", (*newRoom).Name)
-					newRoom.Unregister <- socket
-					wg.Done()
-					in <- true
-				}()
-				newRoom.RunRoom(in)
-			}()
-			newRoom.Register <- socket
-		}
-	}
-	defer func() {
-		fmt.Printf("%v: %v\n", color.GreenString("Ended join rooms for socket"), socket.Username)
-	}()
-
-	wg.Wait()
-
-}
-
-type User struct {
-	Username string `json:"username"`
-	Id       string `json:"id"`
 }
