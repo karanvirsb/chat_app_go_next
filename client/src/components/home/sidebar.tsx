@@ -1,8 +1,9 @@
 "use client";
-import React from "react";
+
 import { Button } from "../ui/button";
-import { useChatStore } from "@/store/GoChatStore";
 import { useAuthContext } from "@/context/AuthContext";
+import { useChatStore } from "@/store/GoChatStore";
+import React from "react";
 
 type Props = {
   menuOpen: boolean;

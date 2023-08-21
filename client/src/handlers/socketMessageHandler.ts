@@ -1,5 +1,5 @@
-import { Message } from "@/types/messages/messageTypes";
 import eventEmitter from "@/lib/eventEmitter";
+import { Message } from "@/types/messages/messageTypes";
 
 export function emitEvents(message: Message) {
   switch (message.eventName) {

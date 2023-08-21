@@ -1,11 +1,11 @@
+import { useAuthContext } from "./AuthContext";
+import { emitEvents } from "@/handlers/socketMessageHandler";
+import { useChatStore } from "@/store/GoChatStore";
+import { Message } from "@/types/messages/messageTypes";
 import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useEffect, useMemo } from "react";
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
-import { useAuthContext } from "./AuthContext";
-import { Message } from "@/types/messages/messageTypes";
-import { useChatStore } from "@/store/GoChatStore";
-import { emitEvents } from "@/handlers/socketMessageHandler";
 
 export interface IWebSocketContext {
   websocketHook: WebSocketHook<JsonValue | null, MessageEvent<any> | null>;

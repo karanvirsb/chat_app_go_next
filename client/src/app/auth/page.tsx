@@ -26,8 +26,8 @@ export default function Auth() {
   const [usernameErr, setUsernameErr] = useState("");
 
   return (
-    <div className="min-w-sm max-w-md w-full shadow-md px-4 py-2 rounded-md bg-white">
-      <h1 className="text-center font-semibold text-3xl mb-4">Login</h1>
+    <div className="min-w-sm w-full max-w-md rounded-md bg-white px-4 py-2 shadow-md">
+      <h1 className="mb-4 text-center text-3xl font-semibold">Login</h1>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleOnSubmit)}

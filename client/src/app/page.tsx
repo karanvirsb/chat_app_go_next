@@ -11,14 +11,14 @@ export default function Home() {
   const [usersOpen, setUsersOpen] = useState(true);
   return (
     <main
-      className={`flex gap-4 min-h-screen ${!menuOpen && "pl-2"} ${
+      className={`flex min-h-screen gap-4 ${!menuOpen && "pl-2"} ${
         !usersOpen && "pr-2"
       }`}
     >
       {menuOpen ? (
         <Sidebar toggleMenu={toggleMenu} menuOpen={menuOpen}></Sidebar>
       ) : null}
-      <div className="flex flex-col flex-grow">
+      <div className="flex flex-grow flex-col">
         <Topbar
           menuOpen={menuOpen}
           usersOpen={usersOpen}
