@@ -11,6 +11,11 @@ export interface IWebSocketContext {
   websocketHook: WebSocketHook<JsonValue | null, MessageEvent<any> | null>;
 }
 
+export interface JoinRoom {
+  username: string;
+  rooms: string[];
+}
+
 const WebSocketContext = createContext<IWebSocketContext>({
   websocketHook: {
     getWebSocket: () => null,
@@ -21,11 +26,6 @@ const WebSocketContext = createContext<IWebSocketContext>({
     sendMessage: () => null,
   },
 });
-
-export interface JoinRoom {
-  username: string;
-  rooms: string[];
-}
 
 export function WebSocketContextProvider({
   children,
@@ -44,6 +44,7 @@ export function WebSocketContextProvider({
   } = useWebSocket("ws://localhost:8000/socket");
   const rooms = useChatStore((state) => state.rooms);
   const roomNames = useMemo(() => rooms.map((room) => room.name), [rooms]);
+
   useEffect(() => {
     if (!session || (session && session.username.length == 0)) {
       router.replace("/auth");
