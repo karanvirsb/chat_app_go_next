@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"chat_app_server/data"
 	"chat_app_server/websockets"
 	"fmt"
 	"net/http"
@@ -36,10 +37,10 @@ var upgrader = websocket.Upgrader{
 func generateId() string {
 	return uuid.NewString()
 }
-func SocketHandler(connections *websockets.Connections, rooms *map[string]websockets.Room, w http.ResponseWriter, r *http.Request) {
+func SocketHandler(connections *data.Connections, rooms *map[string]data.Room, w http.ResponseWriter, r *http.Request) {
 	socketRequestHandler(w, r, connections, rooms)
 }
-func socketRequestHandler(w http.ResponseWriter, r *http.Request, connections *websockets.Connections, rooms *map[string]websockets.Room) {
+func socketRequestHandler(w http.ResponseWriter, r *http.Request, connections *data.Connections, rooms *map[string]data.Room) {
 	wg := sync.WaitGroup{}
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -53,7 +54,7 @@ func socketRequestHandler(w http.ResponseWriter, r *http.Request, connections *w
 	// room := vars["room"]
 
 	// creating socket
-	socket := websockets.Socket{
+	socket := data.Socket{
 		Id:   generateId(),
 		Conn: conn,
 	}

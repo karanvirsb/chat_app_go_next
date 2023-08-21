@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"chat_app_server/websockets"
+	"chat_app_server/data"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -15,11 +15,11 @@ type RequestBody struct {
 	Username string `json:"username"`
 }
 
-func CheckUsernameRequestHandler(w http.ResponseWriter, r *http.Request, connections *websockets.Connections) {
+func CheckUsernameRequestHandler(w http.ResponseWriter, r *http.Request, connections *data.Connections) {
 	checkUsernameRequestHandler(w, r, connections)
 }
 
-func checkUsernameRequestHandler(w http.ResponseWriter, r *http.Request, connections *websockets.Connections) {
+func checkUsernameRequestHandler(w http.ResponseWriter, r *http.Request, connections *data.Connections) {
 	var b RequestBody
 	err := json.NewDecoder(r.Body).Decode(&b)
 	if err != nil {
