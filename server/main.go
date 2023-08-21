@@ -17,11 +17,6 @@ var connections = websockets.Connections{
 
 var rooms = map[string]websockets.Room{}
 
-type User struct {
-	Username string `json:"username"`
-	Id       string `json:"id"`
-}
-
 func main() {
 	router := mux.NewRouter()
 
@@ -35,7 +30,9 @@ func main() {
 	router.HandleFunc("/socket", func(w http.ResponseWriter, r *http.Request) {
 		handler.SocketHandler(&connections, &rooms, w, r)
 	})
-	router.HandleFunc("/users", usersRequestHandler)
+	router.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
+		handler.UsersRequestHandler(w, r, &connections)
+	})
 	router.HandleFunc("/check/username", checkUsernameRequestHandler).Methods("POST")
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -46,19 +43,6 @@ func main() {
 	http.ListenAndServe(":8000", handler)
 }
 
-func usersRequestHandler(w http.ResponseWriter, r *http.Request) {
-	users := make([]User, len(connections.Conns))
-	for i, conn := range connections.Conns {
-		if len(conn.Username) == 0 {
-			continue
-		}
-		users[i] = User{Username: conn.Username, Id: conn.Id}
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(users)
-}
 func checkUsernameRequestHandler(w http.ResponseWriter, r *http.Request) {
 	type MessageResponse struct {
 		Success bool   `json:"success"`
