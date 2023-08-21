@@ -49,7 +49,7 @@ func (c *Connections) NotifyUsersOfLeave(s *Socket) {
 		if socket.Id == s.Id {
 			continue
 		}
-		socket.writeJSON(string(leftMessage), nil)
+		socket.WriteJSON(string(leftMessage), nil)
 	}
 }
 
@@ -85,7 +85,7 @@ func (c *Connections) NotifyUsersOfConnectedUser(s *Socket, cb func()) {
 			continue
 		}
 		fmt.Printf("Sending to connection: %v\n", socket.Username)
-		err = socket.writeJSON(string(joinMessage), nil)
+		err = socket.WriteJSON(string(joinMessage), nil)
 		if err != nil {
 			fmt.Printf("Sending Connection Error for user %v: %v\n", socket.Username, err)
 		}
