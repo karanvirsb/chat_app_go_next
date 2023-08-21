@@ -7,9 +7,10 @@ import React, { createContext, useContext, useEffect, useMemo } from "react";
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 
-export interface IWebSocketContext {
-  websocketHook: WebSocketHook<JsonValue | null, MessageEvent<any> | null>;
-}
+export type IWebSocketContext = WebSocketHook<
+  JsonValue | null,
+  MessageEvent<any> | null
+>;
 
 export interface JoinRoom {
   username: string;
@@ -17,14 +18,12 @@ export interface JoinRoom {
 }
 
 const WebSocketContext = createContext<IWebSocketContext>({
-  websocketHook: {
-    getWebSocket: () => null,
-    lastJsonMessage: null,
-    lastMessage: null,
-    readyState: -1,
-    sendJsonMessage: () => null,
-    sendMessage: () => null,
-  },
+  getWebSocket: () => null,
+  lastJsonMessage: null,
+  lastMessage: null,
+  readyState: -1,
+  sendJsonMessage: () => null,
+  sendMessage: () => null,
 });
 
 export function WebSocketContextProvider({
