@@ -29,4 +29,4 @@ cd chat_app_go_next/client & npm run dev
 cd chat_app_go_next/server & go run .
 ```
 
-Then go to (http://localhost:3000)[http://localhost:3000]
+Then go to [http://localhost:3000](http://localhost:3000)
