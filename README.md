@@ -20,13 +20,13 @@ cd client; npm install
 
 1. client side
 ```bash
-cd chat_app_go_next/client; npm run dev 
+cd client; npm run dev 
 ```
 
 2. Server Side
 
 ```bash
-cd chat_app_go_next/server; go run .
+cd server; go run .
 ```
 
 Then go to [http://localhost:3000](http://localhost:3000)
